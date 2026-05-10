@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskResult",
+  "description": "Sub-Agent 执行完成后返回的结果格式",
+  "type": "object",
+  "required": ["task_id", "status", "output"],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "对应的任务 ID，与 TaskDescriptor.task_id 一致"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "failed", "blocked", "needs_clarification"],
+      "description": "任务执行状态"
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "产出的文件路径列表"
+        },
+        "summary": {
+          "type": "string",
+          "description": "执行摘要，一句话描述做了什么"
+        },
+        "changes": {
+          "type": "array",
+          "description": "变更集合",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": { "type": "string" },
+              "diff": { "type": "string" },
+              "lines_added": { "type": "integer" },
+              "lines_removed": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "description": "执行过程中发现的问题",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["info", "warning", "error", "critical"]
+          },
+          "message": { "type": "string" },
+          "affected_files": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "duration": { "type": "string" },
+        "files_affected": { "type": "integer" },
+        "tests_passed": { "type": "integer" },
+        "tests_failed": { "type": "integer" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "task_id": "task-001",
+      "status": "success",
+      "output": {
+        "artifacts": ["src/middleware/auth.ts", "test/middleware/auth.test.ts"],
+        "summary": "重构 JWT 验证为独立 middleware，新增日志中间件",
+        "changes": [
+          {
+            "path": "src/middleware/auth.ts",
+            "diff": "...",
+            "lines_added": 150,
+            "lines_removed": 80
+          }
+        ]
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "message": "测试覆盖率为 75%，低于目标的 80%",
+          "affected_files": ["test/middleware/auth.test.ts"]
+        }
+      ],
+      "metrics": {
+        "duration": "12m",
+        "files_affected": 2,
+        "tests_passed": 45,
+        "tests_failed": 0
+      }
+    },
+    {
+      "task_id": "task-002",
+      "status": "failed",
+      "output": {
+        "artifacts": [],
+        "summary": "任务失败：无法找到依赖的服务定义"
+      },
+      "issues": [
+        {
+          "severity": "error",
+          "message": "UserService 类未找到，可能需要先完成 task-001",
+          "affected_files": ["src/services/user.service.ts"]
+        }
+      ],
+      "metrics": {
+        "duration": "5m",
+        "files_affected": 0
+      }
+    }
+  ]
+}
