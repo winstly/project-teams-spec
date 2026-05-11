@@ -11,6 +11,63 @@ A multi-agent engineering specification execution system. Provides standardized 
 - **Interactive Installation**: Welcome screen + tool multi-select, ready to use out of the box
 - **Flexible Granularity**: INSTRUCTIONS support intent/procedural/protocol/conversational granularity
 
+## Installation
+
+```bash
+# Install globally via npm
+npm install -g project-teams-spec
+
+# Or use npx directly
+npx project-teams-spec install
+```
+
+## Quick Start
+
+### Interactive Installation
+
+```bash
+# Run without arguments for interactive mode
+project-teams-spec install
+```
+
+This will show a welcome screen and let you select which tools to install to (Claude Code, OpenCode, Trae, etc.).
+
+### Install to Specific Tools
+
+```bash
+# Install to Claude Code
+project-teams-spec install --tools claude
+
+# Install to multiple tools
+project-teams-spec install --tools claude,opencode,trae
+
+# Force overwrite existing installation
+project-teams-spec install --tools claude --force
+
+# Preview what would be installed
+project-teams-spec install --tools claude --dry-run
+```
+
+### Other Commands
+
+```bash
+# List installed tools and status
+project-teams-spec list
+
+# Uninstall from specific tools
+project-teams-spec uninstall --tools claude
+```
+
+## Invoke Commands
+
+After installation, use slash commands in your CLI tool:
+
+```bash
+/pts:full-analysis    # Complete project analysis
+/pts:plan-cycle       # Planning cycle
+/pts:execution-cycle  # Execution cycle
+```
+
 ## Architecture
 
 ```
@@ -39,54 +96,6 @@ project-teams-spec/
 │   └── cli.js                        # CLI entry point
 └── openspec/
     └── changes/                      # OpenSpec change management
-```
-
-## Quick Start
-
-### Installation
-
-```bash
-# Clone the project
-git clone https://github.com/your-org/project-teams-spec.git
-cd project-teams-spec
-
-# Install dependencies
-npm install
-
-# Link globally
-npm link
-```
-
-### Use the CLI
-
-```bash
-# Interactive installation (shows welcome screen + tool selection)
-project-teams-spec install
-
-# Install to specific tools
-project-teams-spec install --tools claude,opencode
-
-# Force overwrite
-project-teams-spec install --tools claude --force
-
-# Preview installation
-project-teams-spec install --tools claude --dry-run
-
-# List tool status
-project-teams-spec list
-
-# Uninstall
-project-teams-spec uninstall --tools claude
-```
-
-### Invoke Commands
-
-After installation, use slash commands in Claude Code:
-
-```bash
-/pts:full-analysis    # Complete project analysis
-/pts:plan-cycle       # Planning cycle
-/pts:execution-cycle  # Execution cycle
 ```
 
 ## Supported Tools
@@ -169,29 +178,6 @@ After installation, the target directory will contain:
 └── .project-teams-spec-*-version  # Version tracking
 ```
 
-## Interactive Installation
-
-Running `project-teams-spec install` (without arguments) starts interactive installation:
-
-1. **Welcome Screen**: Shows project info and feature introduction
-2. **Tool Selection**: Use spacebar to select tools to install to
-3. **Confirm Installation**: Press Enter to confirm
-
-```
-================================================
-  project-teams-spec
-  Multi-Agent Engineering Spec System
-================================================
-
-This setup will configure:
-  - Skills (9 standard workflow phases)
-  - Agents (Java, Frontend, Backend, QA, Reviewer)
-  - Rules (architecture, coding standards, naming)
-  - Hooks (Claude Code integration)
-
-Press Enter to select tools...
-```
-
 ## Troubleshooting
 
 ### Windows Environment Requirements
@@ -209,7 +195,7 @@ If `/pts:` commands are not available:
 
 1. Verify `project-teams-spec install` has been run
 2. Check if `.claude/commands/pts/` directory exists
-3. Restart Claude Code
+3. Restart your CLI tool
 
 ### Permission Issues
 
