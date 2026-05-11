@@ -31,7 +31,7 @@ input:
 output:
   - name: verification_report
     type: file
-    path: .project-teams-spec/verification.yaml
+    path: {{SPEC_DIR}}/verification.md
     description: Verification report
 
   - name: passed
@@ -126,50 +126,59 @@ You are a quality verification expert. Verify whether the execution results of t
 
 ## Verification Report Format
 
-```yaml
-# verification.yaml
+```markdown
+# {{SPEC_DIR}}/verification.md
 
-passed: false  # true or false
-summary: |
-  Total tasks: 10
-  Passed: 8
-  Failed: 2
+## 验证报告
 
-quality_checks:
-  - name: Code Syntax
-    status: passed
-    details: No compilation errors
-  - name: Type Safety
-    status: passed
-    details: TypeScript compilation passes
-  - name: Test Coverage
-    status: failed
-    details: Coverage is 65%, below target of 80%
+**状态**: ❌ 未通过 (或 ✓ 已通过)
+**总任务数**: 10
+**通过**: 8
+**失败**: 2
 
-test_results:
-  total: 150
-  passed: 130
-  failed: 5
-  skipped: 15
+### 质量检查
 
-coverage:
-  statements: 72%
-  branches: 68%
-  functions: 78%
-  lines: 65%
+| 检查项 | 状态 | 详情 |
+|--------|------|------|
+| 代码语法 | ✓ 通过 | 无编译错误 |
+| 类型安全 | ✓ 通过 | TypeScript 编译通过 |
+| 测试覆盖率 | ❌ 失败 | 覆盖率 65%，低于目标 80% |
 
-remaining_issues:
-  - severity: high
-    title: "Insufficient test coverage"
-    description: "test/user.service.test.ts coverage is only 45%"
-    affected_files: ["src/services/user.service.ts"]
-    suggestion: "Add edge case tests"
+### 测试结果
 
-  - severity: medium
-    title: "Code style deviation"
-    description: "Variable naming in src/api/user.ts does not follow conventions"
-    affected_files: ["src/api/user.ts"]
-    suggestion: "Use camelCase for variable naming"
+| 指标 | 值 |
+|------|------|
+| 总数 | 150 |
+| 通过 | 130 |
+| 失败 | 5 |
+| 跳过 | 15 |
+
+### 覆盖率
+
+| 指标 | 覆盖率 |
+|------|--------|
+| 语句 | 72% |
+| 分支 | 68% |
+| 函数 | 78% |
+| 行 | 65% |
+
+### 遗留问题
+
+#### 高优先级
+| 项目 | 详情 |
+|------|------|
+| 标题 | 测试覆盖率不足 |
+| 描述 | test/user.service.test.ts 覆盖率仅 45% |
+| 影响文件 | src/services/user.service.ts |
+| 建议 | 添加边界情况测试 |
+
+#### 中优先级
+| 项目 | 详情 |
+|------|------|
+| 标题 | 代码风格偏差 |
+| 描述 | src/api/user.ts 中的变量命名不符合规范 |
+| 影响文件 | src/api/user.ts |
+| 建议 | 使用 camelCase 命名变量 |
 ```
 
 ## Failure Handling

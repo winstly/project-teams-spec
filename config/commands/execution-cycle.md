@@ -7,16 +7,16 @@ version: 1.0.0
 
 ## Skill Chain
 skills:
-  - task-execute
-  - qa-verify
-  - delivery-close
+  - pts-task-execute
+  - pts-qa-verify
+  - pts-delivery-close
 
 ## Checkpoint Strategy
 checkpoint:
   mode: necessary-only
   before:
-    - qa-verify
-    - delivery-close
+    - pts-qa-verify
+    - pts-delivery-close
   require: user-confirm
 
 ## Branch Conditions
@@ -26,19 +26,19 @@ branches:
     message: "Execution cycle complete. Deliverables archived, lessons learned recorded."
   on-fail:
     path: notify-master
-    message: "QA verification failed. Fix and re-execute task-execute."
+    message: "QA verification failed. Fix and re-execute pts-task-execute."
 
 ## Execution Notes
 This command executes the complete execution cycle:
-1. Agents execute assigned tasks (task-execute)
-2. QA Agent verifies execution results (qa-verify)
-3. On QA failure, rollback to task-execute for fixes
-4. After QA passes, archive and deliver (delivery-close)
+1. Agents execute assigned tasks (pts-task-execute)
+2. QA Agent verifies execution results (pts-qa-verify)
+3. On QA failure, rollback to pts-task-execute for fixes
+4. After QA passes, archive and deliver (pts-delivery-close)
 
 Preconditions:
-- plan-validate has passed user confirmation
+- pts-plan-validate has passed user confirmation
 - Execution plan is finalized
 
 Hook configuration:
-- After task-execute completes, auto-trigger qa-verify (on-execute-complete)
-- On qa-verify failure, notify Master and user (on-qa-fail)
+- After pts-task-execute completes, auto-trigger pts-qa-verify (on-execute-complete)
+- On pts-qa-verify failure, notify Master and user (on-qa-fail)

@@ -21,12 +21,12 @@ input:
 
   - name: project_md
     type: file
-    path: ./PROJECT.md
+    path: {{SPEC_DIR}}/SPEC.md
     description: Project analysis document
 
   - name: complexity_report
     type: file
-    path: .project-teams-spec/complexity-report.yaml
+    path: {{SPEC_DIR}}/COMPLEXITY.md
     description: Complexity evaluation report
 
 ## Output

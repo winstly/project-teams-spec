@@ -76,11 +76,15 @@ Master (CLI)
 ### State File Location
 ```
 .project-teams-spec/
-├── plan.yaml               # Execution plan
-├── plan-revised.yaml       # Revised plan
-├── complexity-report.yaml  # Complexity report
-├── verification.yaml       # Verification report
-└── archive-manifest.yaml   # Archive manifest
+├── SPEC.md                 # Project specification
+├── COMPLEXITY.md           # Complexity report
+├── projects/
+│   └── <project>/
+│       ├── plan.md         # Execution plan
+│       ├── plan-revised.md # Revised plan
+│       └── tasks/          # Task files
+├── verification.md          # Verification report
+└── archive-manifest.md     # Archive manifest
 ```
 
 ### State Transition

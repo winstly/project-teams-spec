@@ -30,8 +30,8 @@ Execute the complete project analysis workflow.
 
 ## Skills Chain
 
-1. **project-explore** - Analyze project structure, tech stack, and module dependencies
-2. **complexity-evaluate** - Evaluate project complexity (S/M/L/XL)
+1. **pts-project-explore** - Analyze project structure, tech stack, and module dependencies
+2. **pts-complexity-evaluate** - Evaluate project complexity (S/M/L/XL)
 
 ## Checkpoint Strategy
 
@@ -46,15 +46,15 @@ Execute the complete project analysis workflow.
 
 ## Output
 
-- PROJECT.md - Project analysis document
-- ComplexityReport - Complexity evaluation report
+- \`.project-teams-spec/SPEC.md\` - Project analysis document
+- \`.project-teams-spec/COMPLEXITY.md\` - Complexity evaluation report
 
 ## Next Steps
 
 After completion, you can:
-- Confirm PROJECT.md and ComplexityReport
-- Continue with plan-cycle for planning
-- Directly execute execution-cycle for implementation
+- Confirm SPEC.md and COMPLEXITY.md
+- Continue with \`/pts:plan-cycle\` for planning
+- Directly execute \`/pts:execution-cycle\` for implementation
 
 ## Usage
 
@@ -78,10 +78,10 @@ Execute the complete planning workflow.
 
 ## Skills Chain
 
-1. **agent-claim** - Agents claim tasks
-2. **issue-aggregate** - Aggregate clarification questions
-3. **plan-develop** - Generate implementation plan
-4. **plan-validate** - Review and validate plan
+1. **pts-agent-claim** - Agents claim tasks
+2. **pts-issue-aggregate** - Aggregate clarification questions
+3. **pts-plan-develop** - Generate implementation plan
+4. **pts-plan-validate** - Review and validate plan
 
 ## Checkpoint Strategy
 
@@ -102,14 +102,13 @@ Execute the complete planning workflow.
 
 ## Output
 
-- Plan - Implementation plan
-- TaskDescriptor[] - Task assignments for each Agent
+- \`.project-teams-spec/projects/[name]/plan.md\` - Execution plan
+- \`.project-teams-spec/projects/[name]/tasks/\` - Task list
 
 ## Next Steps
 
-After completion, you can:
-- Confirm the execution plan
-- Continue with execution-cycle for implementation
+After confirmation:
+- Continue with \`/pts:execution-cycle\` for implementation
 
 ## Usage
 
@@ -133,9 +132,9 @@ Execute the complete implementation workflow.
 
 ## Skills Chain
 
-1. **task-execute** - Execute assigned tasks
-2. **qa-verify** - Verify execution results
-3. **delivery-close** - Archive and close delivery
+1. **pts-task-execute** - Execute assigned tasks
+2. **pts-qa-verify** - Verify execution results
+3. **pts-delivery-close** - Archive and close delivery
 
 ## Checkpoint Strategy
 

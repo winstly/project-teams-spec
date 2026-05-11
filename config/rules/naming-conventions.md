@@ -6,7 +6,7 @@ This document defines the standard naming conventions for all named elements in 
 
 ### Directory Naming
 ```
-config/skills/<skill-name>/
+{{SKILLS_DIR}}/<skill-name>/
 ```
 - Use kebab-case
 - Examples: `project-explore`, `complexity-evaluate`, `task-execute`
@@ -26,7 +26,7 @@ id: <verb>-<noun>
 
 ### Directory Naming
 ```
-config/agents/<agent-name>/
+{{AGENTS_DIR}}/<agent-name>/
 ```
 - Use kebab-case
 - Examples: `java-agent`, `frontend-agent`, `qa-agent`
@@ -115,7 +115,7 @@ Start with a verb, describing the main activity.
 ### Relative Paths
 ```yaml
 # Relative to .project-teams-spec/
-path: .project-teams-spec/plan.yaml
+path: .project-teams-spec/plan.md
 
 # Relative to project root
 path: ./PROJECT.md

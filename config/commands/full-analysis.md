@@ -7,21 +7,21 @@ version: 1.0.0
 
 ## Skill Chain
 skills:
-  - project-explore
-  - complexity-evaluate
+  - pts-project-explore
+  - pts-complexity-evaluate
 
 ## Checkpoint Strategy
 checkpoint:
   mode: necessary-only
   before:
-    - complexity-evaluate
+    - pts-complexity-evaluate
   require: user-confirm
 
 ## Branch Conditions
 branches:
   on-success:
     path: next-phase
-    message: "Project analysis complete. Proceed to plan-cycle or manually trigger task-execute."
+    message: "Project analysis complete. Proceed to plan-cycle or manually trigger pts-task-execute."
   on-fail:
     path: notify-master
     message: "Project analysis failed. Check project path and configuration files."
@@ -34,6 +34,6 @@ This command executes complete project analysis, including:
 4. Generate delivery targets and Agent allocation plan
 
 After completion, user can:
-- Confirm PROJECT.md and ComplexityReport
+- Confirm {{SPEC_DIR}}/SPEC.md and {{SPEC_DIR}}/COMPLEXITY.md
 - Proceed to plan-cycle for planning
 - Directly execute execution-cycle for implementation

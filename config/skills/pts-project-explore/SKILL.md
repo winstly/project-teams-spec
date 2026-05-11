@@ -27,7 +27,7 @@ input:
 output:
   - name: PROJECT.md
     type: file
-    path: ./PROJECT.md
+    path: {{SPEC_DIR}}/SPEC.md
     description: Project analysis document containing tech stack, module structure, and architecture description
 
   - name: matched_rules

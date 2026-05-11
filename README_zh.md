@@ -123,15 +123,15 @@ project-teams-spec uninstall --tools claude
 
 | Skill | 阶段 | 粒度 | 说明 |
 |-------|------|------|------|
-| project-explore | 1 | intent | 分析项目结构 |
-| complexity-evaluate | 2 | procedural | 评估复杂度 |
-| agent-claim | 3 | protocol | 分配任务 |
-| issue-aggregate | 4 | conversational | 汇总问题 |
-| plan-develop | 5 | intent | 制定执行计划 |
-| plan-validate | 6 | procedural | 评审方案 |
-| task-execute | 7 | protocol | 执行任务 |
-| qa-verify | 8 | protocol | 质量验证 |
-| delivery-close | 9 | procedural | 交付归档 |
+| pts-project-explore | 1 | intent | 分析项目结构 |
+| pts-complexity-evaluate | 2 | procedural | 评估复杂度 |
+| pts-agent-claim | 3 | protocol | 分配任务 |
+| pts-issue-aggregate | 4 | conversational | 汇总问题 |
+| pts-plan-develop | 5 | intent | 制定执行计划 |
+| pts-plan-validate | 6 | procedural | 评审方案 |
+| pts-task-execute | 7 | protocol | 执行任务 |
+| pts-qa-verify | 8 | protocol | 质量验证 |
+| pts-delivery-close | 9 | procedural | 交付归档 |
 
 ## Agents
 
@@ -148,16 +148,15 @@ project-teams-spec uninstall --tools claude
 ```
 .claude/
 ├── skills/                         # Skill 定义
-│   ├── project-explore/
-│   ├── complexity-evaluate/
-│   ├── agent-claim/
+│   ├── pts-project-explore/
+│   ├── pts-complexity-evaluate/
+│   ├── pts-agent-claim/
 │   └── ...
 ├── agents/                         # Agent 定义
 │   ├── java-agent/
 │   ├── frontend-agent/
 │   └── ...
-├── config/
-│   └── rules/                     # 规则集
+├── rules/                     # 规则集
 ├── hooks/                         # Hook 脚本（仅 Claude Code）
 │   ├── on-subagent-start.sh
 │   ├── on-subagent-stop.sh

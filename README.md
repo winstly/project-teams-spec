@@ -123,15 +123,15 @@ Commands are auto-generated via the `src/core/command-generation/` module, suppo
 
 | Skill | Phase | Granularity | Description |
 |-------|-------|------------|-------------|
-| project-explore | 1 | intent | Analyze project structure |
-| complexity-evaluate | 2 | procedural | Evaluate complexity |
-| agent-claim | 3 | protocol | Assign tasks |
-| issue-aggregate | 4 | conversational | Aggregate issues |
-| plan-develop | 5 | intent | Develop execution plan |
-| plan-validate | 6 | procedural | Review and validate plan |
-| task-execute | 7 | protocol | Execute tasks |
-| qa-verify | 8 | protocol | Quality verification |
-| delivery-close | 9 | procedural | Delivery and archival |
+| pts-project-explore | 1 | intent | Analyze project structure |
+| pts-complexity-evaluate | 2 | procedural | Evaluate complexity |
+| pts-agent-claim | 3 | protocol | Assign tasks |
+| pts-issue-aggregate | 4 | conversational | Aggregate issues |
+| pts-plan-develop | 5 | intent | Develop execution plan |
+| pts-plan-validate | 6 | procedural | Review and validate plan |
+| pts-task-execute | 7 | protocol | Execute tasks |
+| pts-qa-verify | 8 | protocol | Quality verification |
+| pts-delivery-close | 9 | procedural | Delivery and archival |
 
 ## Agents
 
@@ -148,16 +148,15 @@ After installation, the target directory will contain:
 ```
 .claude/
 ├── skills/                         # Skill definitions
-│   ├── project-explore/
-│   ├── complexity-evaluate/
-│   ├── agent-claim/
+│   ├── pts-project-explore/
+│   ├── pts-complexity-evaluate/
+│   ├── pts-agent-claim/
 │   └── ...
 ├── agents/                         # Agent definitions
 │   ├── java-agent/
 │   ├── frontend-agent/
 │   └── ...
-├── config/
-│   └── rules/                     # Rule sets
+├── rules/                         # Rule sets
 ├── hooks/                         # Hook scripts (Claude Code only)
 │   ├── on-subagent-start.sh
 │   ├── on-subagent-stop.sh

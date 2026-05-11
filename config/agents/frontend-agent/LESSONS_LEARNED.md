@@ -51,4 +51,4 @@
 - 生成 `.claude/` 等工具配置文件时
 
 ### 改进建议
-在 `config/rules/coding-standards.md` 中添加跨平台路径处理规范。
+在 `{{RULES_DIR}}/coding-standards.md` 中添加跨平台路径处理规范。

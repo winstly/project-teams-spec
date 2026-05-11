@@ -14,7 +14,7 @@
 import { Command } from 'commander';
 import path from 'path';
 import fs from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import {
   CommandAdapterRegistry,
@@ -28,6 +28,10 @@ import { getCommandContents } from './core/command-templates.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
+
+// Read version from package.json
+const packageJson = JSON.parse(readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf-8'));
+const VERSION = packageJson.version;
 
 // Register command adapters
 CommandAdapterRegistry.register(claudeAdapter);
@@ -73,6 +77,41 @@ const HOOK_SCRIPTS: Record<HookEvent, string> = {
   SessionEnd: 'on-session-end.sh',
 };
 
+// Placeholder definitions for dynamic path replacement
+const PLACEHOLDER_REPLACEMENTS: Record<string, (toolId: string) => string> = {
+  '{{TOOL_DIR}}': (toolId) => '.' + toolId,
+  '{{AGENTS_DIR}}': (toolId) => '.' + toolId + '/agents',
+  '{{SKILLS_DIR}}': (toolId) => '.' + toolId + '/skills',
+  '{{RULES_DIR}}': (toolId) => '.' + toolId + '/rules',
+  '{{SPEC_DIR}}': () => '.project-teams-spec',
+};
+
+// Files that should have placeholders replaced
+const PLACEHOLDER_PATTERNS = [
+  'config/skills/**/*.md',
+  'config/commands/**/*.md',
+  'config/rules/**/*.md',
+];
+
+// Precompiled regex patterns for performance
+const PLACEHOLDER_REGEXES = PLACEHOLDER_PATTERNS.map(p =>
+  new RegExp(p.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*'))
+);
+
+// Check if file should have placeholder replacement
+function shouldReplacePlaceholders(filePath: string): boolean {
+  return PLACEHOLDER_REGEXES.some(regex => regex.test(filePath));
+}
+
+// Replace placeholders in file content based on toolId
+function replacePlaceholders(content: string, toolId: string): string {
+  let result = content;
+  for (const [placeholder, replacer] of Object.entries(PLACEHOLDER_REPLACEMENTS)) {
+    result = result.split(placeholder).join(replacer(toolId));
+  }
+  return result;
+}
+
 // Get tool path - prefer project directory
 async function getToolPath(toolId: string, useProjectDir: boolean = true): Promise<string | null> {
   const config = TOOL_DIRECTORIES[toolId];
@@ -100,9 +139,9 @@ function isToolInstalled(toolId: string): boolean {
   return existsSync(homePath);
 }
 
-async function copyDirectory(src: string, dest: string, options?: { overwrite?: boolean }): Promise<string[]> {
+async function copyDirectory(src: string, dest: string, options?: { overwrite?: boolean; toolId?: string }): Promise<string[]> {
   const copied: string[] = [];
-  const { overwrite = true } = options || {};
+  const { overwrite = true, toolId } = options || {};
 
   try {
     await fs.mkdir(dest, { recursive: true });
@@ -124,7 +163,16 @@ async function copyDirectory(src: string, dest: string, options?: { overwrite?: 
         const destExists = existsSync(destPath);
         if (destExists && !overwrite) continue;
 
-        await fs.copyFile(srcPath, destPath);
+        // Read file content
+        let content = await fs.readFile(srcPath, 'utf-8');
+
+        // Replace placeholders if applicable
+        if (toolId && shouldReplacePlaceholders(srcPath)) {
+          content = replacePlaceholders(content, toolId);
+        }
+
+        // Write file
+        await fs.writeFile(destPath, content, 'utf-8');
         copied.push(path.relative(src, srcPath));
       } catch (err) {
         console.warn(`  Warning: Could not copy ${srcPath} -> ${destPath}: ${err}`);
@@ -223,7 +271,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<v
     console.log('  [DRY RUN] Would copy:');
     console.log('    - config/skills/ -> skills/');
     console.log('    - config/agents/ -> agents/');
-    console.log('    - config/rules/ -> config/rules/');
+    console.log('    - config/rules/ -> rules/');
     if (config.hooksSupported && !options.uninstall) {
       console.log('    - config/hooks/ -> hooks/');
       console.log('    - Update settings.json hooks');
@@ -255,7 +303,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<v
   console.log('  Copying skills...');
   const skillsSrc = path.join(PROJECT_ROOT, 'config', 'skills');
   const skillsDest = path.join(toolPath, 'skills');
-  const skillsCopied = await copyDirectory(skillsSrc, skillsDest, { overwrite });
+  const skillsCopied = await copyDirectory(skillsSrc, skillsDest, { overwrite, toolId });
   console.log(`    [OK] ${skillsCopied.length} skill files copied`);
 
   // Install agents
@@ -268,8 +316,8 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<v
   // Install rules
   console.log('  Copying rules...');
   const rulesSrc = path.join(PROJECT_ROOT, 'config', 'rules');
-  const rulesDest = path.join(toolPath, 'config', 'rules');
-  const rulesCopied = await copyDirectory(rulesSrc, rulesDest, { overwrite });
+  const rulesDest = path.join(toolPath, 'rules');
+  const rulesCopied = await copyDirectory(rulesSrc, rulesDest, { overwrite, toolId });
   console.log(`    [OK] ${rulesCopied.length} rule files copied`);
 
   // Install commands using command generation
@@ -305,7 +353,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<v
       console.log('  Installing hooks...');
       const hooksSrc = path.join(PROJECT_ROOT, 'config', 'hooks');
       const hooksDest = path.join(toolPath, 'hooks');
-      const hooksCopied = await copyDirectory(hooksSrc, hooksDest, { overwrite });
+      const hooksCopied = await copyDirectory(hooksSrc, hooksDest, { overwrite, toolId });
       console.log(`    [OK] ${hooksCopied.length} hook files copied`);
 
       await updateSettingsJsonHooks(toolPath, true);
@@ -315,7 +363,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<v
 
   // Update version file
   const versions = await readVersionFile(toolPath, toolId);
-  versions['project-teams-spec'] = '1.0.0';
+  versions['project-teams-spec'] = VERSION;
   versions['installed-at'] = new Date().toISOString();
   await writeVersionFile(toolPath, toolId, versions);
   console.log('  [OK] Version file updated');

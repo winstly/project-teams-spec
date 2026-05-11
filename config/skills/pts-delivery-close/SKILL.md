@@ -20,7 +20,7 @@ input:
 
   - name: verification_report
     type: file
-    path: .project-teams-spec/verification.yaml
+    path: {{SPEC_DIR}}/verification.md
     description: Verification report
 
   - name: project_md
@@ -36,7 +36,7 @@ output:
 
   - name: archive_manifest
     type: file
-    path: .project-teams-spec/archive-manifest.yaml
+    path: {{SPEC_DIR}}/archive-manifest.md
     description: Archive manifest
 
   - name: lessons
@@ -90,43 +90,52 @@ Deliverable Types:
 
 ### 2. Generate Archive Manifest
 
-```yaml
-# archive-manifest.yaml
+```markdown
+# {{SPEC_DIR}}/archive-manifest.md
 
-project: {{project_name}}
-delivered_at: {{timestamp}}
-complexity_level: {{level}}
+## 项目交付清单
 
-artifacts:
-  code:
-    - path: src/api/**/*.ts
-      files: 45
-      lines_added: 3200
-      lines_removed: 1200
+**项目名称**: {{project_name}}
+**交付时间**: {{timestamp}}
+**复杂度等级**: {{level}}
 
-  tests:
-    - path: test/**/*.test.ts
-      files: 28
-      coverage: 82%
+### 交付物
 
-  documentation:
-    - PROJECT.md
-    - complexity-report.yaml
-    - plan.yaml
-    - verification.yaml
+#### 代码变更
+| 路径 | 文件数 | 新增行数 | 删除行数 |
+|------|--------|----------|----------|
+| src/api/**/*.ts | 45 | 3200 | 1200 |
 
-  scripts:
-    - migration.sql
-    - deploy.sh
+#### 测试报告
+| 路径 | 文件数 | 覆盖率 |
+|------|--------|--------|
+| test/**/*.test.ts | 28 | 82% |
 
-summary: |
-  This delivery includes X file changes, Y lines added,
-  Z lines removed, with A% test coverage.
+#### 文档
+- {{SPEC_DIR}}/SPEC.md
+- {{SPEC_DIR}}/COMPLEXITY.md
+- {{SPEC_DIR}}/projects/{{project_name}}/plan.md
+- {{SPEC_DIR}}/verification.md
 
-validation:
-  - { check: "All tests passed", result: "✓" }
-  - { check: "Coverage meets target", result: "✓" }
-  - { check: "Documentation updated", result: "✓" }
+#### 脚本
+- migration.sql
+- deploy.sh
+
+### 总结
+
+本次交付包含：
+- X 个文件变更
+- Y 行新增
+- Z 行删除
+- A% 测试覆盖率
+
+### 验证结果
+
+| 检查项 | 结果 |
+|--------|------|
+| 所有测试通过 | ✓ |
+| 覆盖率达标 | ✓ |
+| 文档已更新 | ✓ |
 ```
 
 ### 3. Collect Lessons Learned

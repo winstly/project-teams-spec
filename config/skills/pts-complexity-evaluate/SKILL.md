@@ -17,7 +17,7 @@ preconditions:
 input:
   - name: project_md
     type: file
-    path: ./PROJECT.md
+    path: {{SPEC_DIR}}/SPEC.md
     description: Project analysis document
     required: true
 
@@ -30,7 +30,7 @@ input:
 output:
   - name: complexity_report
     type: file
-    path: .project-teams-spec/complexity-report.yaml
+    path: {{SPEC_DIR}}/COMPLEXITY.md
     description: Complexity evaluation report
 
   - name: complexity_level
@@ -175,49 +175,48 @@ Scoring criteria:
 
 ## Output Format
 
-```yaml
-# complexity-report.yaml
+```markdown
+# {{SPEC_DIR}}/COMPLEXITY.md
 
-level: M
-score: 42
+## 复杂度评估报告
 
-dimension_scores:
-  code_scale: 18
-  tech_diversity: 15
-  coupling: 20
-  change_risk: 12
-  external_deps: 15
+**复杂度等级**: M (42分)
 
-recommended_agents:
-  - name: frontend-agent
-    tasks: 5
-    estimated_effort: 4h
-  - name: backend-agent
-    tasks: 8
-    estimated_effort: 6h
+### 维度评分
 
-delivery_targets:
-  - name: Core feature migration
-    priority: high
-    deadline: 2d
-  - name: Test coverage improvement
-    priority: medium
-    deadline: 1d
+| 维度 | 得分 | 权重 |
+|------|------|------|
+| 代码规模 | 18 | 20% |
+| 技术多样性 | 15 | 20% |
+| 模块耦合度 | 20 | 25% |
+| 变更风险 | 12 | 20% |
+| 外部依赖 | 15 | 15% |
 
-estimated_effort: 3d
+### 推荐 Agent
 
-risks:
-  - name: Database migration risk
-    severity: medium
-    mitigation: Backup first, then gradual rollout
-  - name: API compatibility
-    severity: high
-    mitigation: Maintain backward compatibility
+| Agent | 任务数 | 预计工作量 |
+|-------|--------|-----------|
+| frontend-agent | 5 | 4h |
+| backend-agent | 8 | 6h |
 
-suggestion: |
-  Recommend delivering in two phases:
-  1. Backend API refactoring
-  2. Frontend adaptation and testing
+### 交付目标
+
+| 目标 | 优先级 | 截止时间 |
+|------|--------|----------|
+| 核心功能迁移 | 高 | 2d |
+| 测试覆盖率提升 | 中 | 1d |
+
+### 风险评估
+
+| 风险 | 严重程度 | 缓解措施 |
+|------|----------|----------|
+| 数据库迁移风险 | 中 | 先备份，逐步发布 |
+
+### 建议
+
+建议分两阶段交付：
+1. 后端 API 重构
+2. 前端适配和测试
 ```
 
 ## Key Constraints

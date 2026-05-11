@@ -7,16 +7,16 @@ version: 1.0.0
 
 ## Skill Chain
 skills:
-  - agent-claim
-  - issue-aggregate
-  - plan-develop
-  - plan-validate
+  - pts-agent-claim
+  - pts-issue-aggregate
+  - pts-plan-develop
+  - pts-plan-validate
 
 ## Checkpoint Strategy
 checkpoint:
   mode: necessary-only
   before:
-    - plan-validate
+    - pts-plan-validate
   require: user-confirm
 
 ## Branch Conditions
@@ -30,13 +30,13 @@ branches:
 
 ## Execution Notes
 This command executes the complete planning cycle:
-1. Agents claim tasks (agent-claim)
-2. Aggregate clarification issues (issue-aggregate)
-3. After user feedback, generate implementation plan (plan-develop)
-4. Review plan (plan-validate)
+1. Agents claim tasks (pts-agent-claim)
+2. Aggregate clarification issues (pts-issue-aggregate)
+3. After user feedback, generate implementation plan (pts-plan-develop)
+4. Review plan (pts-plan-validate)
 
 Preconditions:
-- project-explore and complexity-evaluate completed
+- pts-project-explore and pts-complexity-evaluate completed
 - User has confirmed complexity assessment results
 
 After completion, user can:

@@ -20,7 +20,7 @@ input:
 
   - name: project_md
     type: file
-    path: ./PROJECT.md
+    path: {{SPEC_DIR}}/SPEC.md
     description: Project analysis document
 
 ## Output

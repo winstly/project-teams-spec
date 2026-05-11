@@ -96,7 +96,7 @@ type TaskType = 'claim' | 'plan' | 'execute' | 'verify';
   },
   "instruction": "将 src/api/auth.ts 中的 JWT 验证逻辑迁移到新的 middleware 架构。保持向后兼容，不修改公开 API 签名。",
   "constraints": [
-    "遵循 config/rules/coding-standards.md 中的 Java 编码规范",
+    "遵循 {{RULES_DIR}}/coding-standards.md 中的 Java 编码规范",
     "新增日志记录",
     "更新相关测试，覆盖率达到 80%",
     "保持 API 兼容性"

@@ -16,12 +16,12 @@ preconditions:
 input:
   - name: execution_plan
     type: file
-    path: .project-teams-spec/plan.yaml
+    path: {{SPEC_DIR}}/projects/{{project_name}}/plan.md
     description: Execution plan
 
   - name: task_breakdown
     type: data
-    description: Task breakdown
+    description: Task breakdown (from {{SPEC_DIR}}/tasks/)
 
   - name: project_md
     type: file
@@ -40,7 +40,7 @@ output:
 
   - name: revised_plan
     type: file
-    path: .project-teams-spec/plan-revised.yaml
+    path: {{SPEC_DIR}}/projects/{{project_name}}/plan-revised.md
     description: Revised plan (if any)
 
 ## Checkpoint
@@ -142,7 +142,7 @@ When review_result is needs_revision or rejected:
 ```
 1. Read review_comments
 2. Revise the plan for each issue
-3. Generate plan-revised.yaml after revision
+3. Generate plan-revised.md after revision
 4. Re-review (until approved)
 ```
 

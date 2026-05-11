@@ -24,19 +24,19 @@ input:
 
   - name: project_md
     type: file
-    path: ./PROJECT.md
+    path: {{SPEC_DIR}}/SPEC.md
     description: Project analysis document
 
   - name: complexity_report
     type: file
-    path: .project-teams-spec/complexity-report.yaml
+    path: {{SPEC_DIR}}/COMPLEXITY.md
     description: Complexity assessment report
 
 ## Output
 output:
   - name: execution_plan
     type: file
-    path: .project-teams-spec/plan.yaml
+    path: {{SPEC_DIR}}/projects/{{project_name}}/plan.md
     description: Execution plan
 
   - name: task_breakdown
@@ -127,9 +127,10 @@ task_breakdown:
   - id: task-001
     title: "Refactor authentication module"
     agent: java-agent
+    agent_config: "{{AGENTS_DIR}}/java-agent/agent.md"
     estimated_time: 2h
     dependencies: []
-    scope: ["src/auth/**/*"]
+    scope: ["{{SPEC_DIR}}/SPEC.md", "src/auth/**/*"]
     acceptance_criteria:
       - All authentication tests pass
       - API compatibility maintained
@@ -138,9 +139,10 @@ task_breakdown:
   - id: task-002
     title: "Migrate frontend components"
     agent: frontend-agent
+    agent_config: "{{AGENTS_DIR}}/frontend-agent/agent.md"
     estimated_time: 3h
     dependencies: ["task-001"]
-    scope: ["src/components/**/*"]
+    scope: ["{{SPEC_DIR}}/SPEC.md", "src/components/**/*"]
     acceptance_criteria:
       - Components function correctly
       - Test coverage >= 80%
@@ -183,28 +185,87 @@ risks:
 
 ## Output Format
 
-```yaml
-# plan.yaml
+```markdown
+# {{SPEC_DIR}}/projects/{{project_name}}/plan.md
 
-overview: |
-  This plan involves X tasks, estimated at Y hours.
+## 项目执行计划
 
-phases:
-  - name: Phase 1 - Infrastructure
-    tasks: [task-001, task-002]
-    duration: 2h
+**概述**: 本计划包含 X 个任务，预计 Y 小时。
 
-  - name: Phase 2 - Core Features
-    tasks: [task-003, task-004]
-    duration: 4h
+### 执行阶段
 
-  - name: Phase 3 - Testing & Verification
-    tasks: [task-005]
-    duration: 2h
+#### Phase 1 - 基础设施
+| 任务 | Agent | 预计时长 |
+|------|-------|----------|
+| task-001 | java-agent | 2h |
+| task-002 | frontend-agent | 2h |
 
-task_breakdown: [...]
-dependency_graph: [...]
-risks: [...]
+#### Phase 2 - 核心功能
+| 任务 | Agent | 预计时长 | 依赖 |
+|------|-------|----------|------|
+| task-003 | backend-agent | 3h | task-001 |
+
+### 任务详情
+
+详见 `{{SPEC_DIR}}/projects/{{project_name}}/tasks/` 目录。
+
+### 依赖关系图
+
+```
+Task A ─┬─→ Task C ─→ Task E
+         │
+Task B ─┘
+```
+
+### 风险评估
+
+| 风险 | 严重程度 | 缓解措施 |
+|------|----------|----------|
+| 数据库迁移风险 | 中 | 先备份，逐步发布 |
+```
+
+### Tasks 目录结构
+
+每个任务拆分为单独文件：
+
+```
+{{SPEC_DIR}}/projects/{{project_name}}/tasks/
+├── task-001.md
+├── task-002.md
+└── ...
+```
+
+每个任务文件格式：
+
+```markdown
+# Task: task-001
+
+## 基本信息
+- **Task ID**: task-001
+- **Agent**: java-agent
+- **agent_config**: {{AGENTS_DIR}}/java-agent/agent.md
+- **状态**: pending
+
+## 任务描述
+[具体任务描述]
+
+## 验收标准
+- [ ] 标准 1
+- [ ] 标准 2
+
+## 约束条件
+- 遵循 {{RULES_DIR}}/coding-standards.md
+
+## 时间
+- **预计时长**: 2h
+- **截止时间**: [deadline]
+
+## 依赖关系
+- 前置任务: [无] / [task-xxx]
+
+## 涉及文件
+- {{SPEC_DIR}}/SPEC.md
+- src/auth/**/*
 ```
 
 ## Key Constraints
