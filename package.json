@@ -1,6 +1,6 @@
 {
     "name": "project-teams-spec",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Multi-Agent Engineering Spec - Standardized engineering specification injection system for AI CLI tools",
     "type": "module",
     "main": "dist/install.js",
@@ -11,7 +11,12 @@
     "scripts": {
         "build": "tsc",
         "dev": "tsc --watch",
-        "test": "node --experimental-vm-modules src/__tests__/runner.js"
+        "test": "node --experimental-vm-modules src/__tests__/runner.js",
+        "validate": "node --experimental-vm-modules src/core/validation/cli.js",
+        "validate:skills": "node --experimental-vm-modules src/core/validation/cli.js --type skill",
+        "validate:agents": "node --experimental-vm-modules src/core/validation/cli.js --type agent",
+        "validate:commands": "node --experimental-vm-modules src/core/validation/cli.js --type command",
+        "typecheck": "tsc --noEmit"
     },
     "keywords": [
         "multi-agent",
@@ -24,6 +29,7 @@
     "license": "MIT",
     "dependencies": {
         "@inquirer/prompts": "^8.4.2",
+        "chalk": "^5.3.0",
         "commander": "^11.0.0"
     },
     "devDependencies": {

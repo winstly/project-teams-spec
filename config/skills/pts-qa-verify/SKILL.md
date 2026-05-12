@@ -1,11 +1,23 @@
 # SKILL: qa-verify
-
-## 元数据
+---
 name: qa-verify
-version: 1.0.0
+version: 1.1.0
 granularity: protocol
 type: agent-subprocess
 phase: 8
+description: Verify execution results against quality standards, run tests, check coverage, and generate verification reports. Handle failures and guide fixes.
+triggers:
+  - "verify quality"
+  - "qa check"
+  - "run verification"
+  - "quality assurance"
+  - "test verification"
+tags:
+  - quality-assurance
+  - verification
+  - testing
+  - coverage-check
+---
 
 ## Preconditions
 preconditions:
@@ -15,75 +27,115 @@ preconditions:
 ## Input
 input:
   - name: execution_results
-    type: data
+    type: data[]
     description: Execution results for each task (TaskResult[])
+    items:
+      - task_id: string
+        status: enum
+        output: object
+        issues: array
 
   - name: project_md
     type: file
-    path: ./PROJECT.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/SPEC.md"
     description: Project analysis document
 
   - name: qa_rules
     type: data
     description: QA Agent verification rules
+    required: false
 
 ## Output
 output:
   - name: verification_report
     type: file
-    path: {{SPEC_DIR}}/verification.md
+    path: "{{SPEC_DIR}}/verification.md"
     description: Verification report
+    format: markdown
 
   - name: passed
     type: boolean
     description: Whether verification passed
 
   - name: remaining_issues
-    type: data
+    type: data[]
     description: List of remaining issues
+    items:
+      - severity: enum
+        title: string
+        description: string
+        affected_files: string[]
+        suggestion: string
+
+  - name: metrics_summary
+    type: object
+    description: Summary of verification metrics
+    properties:
+      total_tests: integer
+      passed_tests: integer
+      failed_tests: integer
+      coverage_percent: float
+      quality_score: float
 
 ## Steps
 steps:
   - id: collect-results
     description: Collect all TaskResults
     type: internal
+    continue_on_error: false
+    timeout: 2m
 
   - id: verify-quality
     description: Verify code quality
     type: agent-subprocess
     delegate_to: qa-agent
+    continue_on_error: false
+    timeout: 10m
 
   - id: run-tests
     description: Run test verification
     type: agent-subprocess
     delegate_to: qa-agent
+    continue_on_error: false
+    timeout: 15m
 
   - id: check-coverage
     description: Check test coverage
     type: agent-subprocess
     delegate_to: qa-agent
+    continue_on_error: false
+    timeout: 5m
 
   - id: generate-report
     description: Generate verification report
     type: internal
+    continue_on_error: false
+    timeout: 3m
 
   - id: handle-failures
     description: Handle verification failures
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
 ## Checkpoint
 checkpoint:
   required: true
-  message: "QA verification complete, please confirm the results."
+  message: "QA verification complete. Status: {passed ? 'PASSED' : 'FAILED'}. Tests: {passed_tests}/{total_tests} passed. Coverage: {coverage_percent}%. Found {issue_count} remaining issues ({critical_count} critical). Please confirm: proceed to delivery or request fixes."
 
 ## Hook Configuration
 hooks:
   on-qa-fail:
     - trigger: on-qa-fail
-      action: notify-master  # Notify Master and user
+      action: notify-master
       fallback: auto-retry-task-execute
+  on-qa-pass:
+    - trigger: on-qa-pass
+      action: auto-trigger-next-skill
+      next_skill: delivery-close
 
 ---
+
 # INSTRUCTIONS
 
 You are a quality verification expert. Verify whether the execution results of task-execute meet quality standards.
@@ -123,6 +175,28 @@ You are a quality verification expert. Verify whether the execution results of t
 | Startup time | No more than 120% of original | warning |
 | Response time | No more than 120% of original | warning |
 | Memory usage | No more than 150% of original | warning |
+
+## Error Handling
+
+| Error Type | Handling Strategy | Recovery Action |
+|------------|-----------------|----------------|
+| Test failure | Log failure, mark critical | Block delivery |
+| Coverage below target | Log warning | Allow delivery with risk |
+| Compilation error | Block delivery | Return to task-execute |
+| Timeout during tests | Retry once | Skip if persistent |
+| No tests found | Log warning | Document as coverage 0% |
+
+### Fix Flow
+
+```
+critical failure → Return to task-execute → Re-verify after fix
+warning failure → User decision (fix / accept risk / skip)
+
+After fix:
+1. Re-run qa-verify
+2. If passed: Continue to delivery-close
+3. If failed: Repeat fix flow
+```
 
 ## Verification Report Format
 
@@ -179,34 +253,6 @@ You are a quality verification expert. Verify whether the execution results of t
 | 描述 | src/api/user.ts 中的变量命名不符合规范 |
 | 影响文件 | src/api/user.ts |
 | 建议 | 使用 camelCase 命名变量 |
-```
-
-## Failure Handling
-
-### On QA Failure
-
-```
-When passed: false:
-
-1. Log failure reason
-2. Generate fix suggestions
-3. Notify Master and user
-
-Failure types:
-├── critical: Must fix, cannot deliver otherwise
-└── warning: Recommended to fix, can deliver with risk
-```
-
-### Fix Flow
-
-```
-critical failure → Return to task-execute → Re-verify after fix
-warning failure → User decision (fix / accept risk / skip)
-
-After fix:
-1. Re-run qa-verify
-2. If passed: Continue to delivery-close
-3. If failed: Repeat fix flow
 ```
 
 ## Key Constraints

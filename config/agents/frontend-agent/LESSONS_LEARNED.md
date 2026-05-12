@@ -14,21 +14,31 @@
 ### 问题描述
 {{problem}}
 
-### 根因分析
-{{root_cause}}
+### 发生了什么
+{{what_happened}}  <!-- 具体描述问题场景 -->
 
-### 解决方案
-{{solution}}
+### 如何避免
+{{prevention}}  <!-- 具体可操作的预防措施 -->
 
 ### 适用场景
 {{applicable_scenarios}}
 
-### 改进建议
-{{improvement}}
+### 代码示例
+
+<!-- 错误示例 -->
+```{{language}}
+// ❌ 错误做法
+{{bad_code}}
+```
+
+<!-- 正确示例 -->
+```{{language}}
+// ✅ 正确做法
+{{good_code}}
+```
 ```
 
 ---
-最后更新: 2026-05-09
 
 ## 2026-05-10 跨平台路径处理问题
 
@@ -37,18 +47,33 @@
 **关联阶段**: Phase 7 (task-execute)
 
 ### 问题描述
-使用 `path.join()` 在 Windows 环境下生成 Unix 风格的路径（如 `commands\pts\xxx.md` 而非 `commands/pts/xxx.md`），导致命令文件路径不一致。
+使用 `path.join()` 在 Windows 环境下生成 Unix 风格的路径，导致命令文件路径不一致。
 
-### 根因分析
-`path.join()` 会根据操作系统使用正确的路径分隔符，但在 CLI 工具场景中，路径分隔符应该是固定的（Unix 风格），因为生成的文件会被其他工具读取。
+### 发生了什么
+CLI 工具在 Windows 上生成的路径被解析为反斜杠，但其他工具期望正斜杠。生成的 `.claude/commands/pts/xxx.md` 文件无法被正确识别。
 
-### 解决方案
-改用 `path.posix.join()` 确保路径分隔符始终为 `/`（Unix 风格）。
+### 如何避免
+1. CLI 工具生成路径时使用 `path.posix.join()` 确保跨平台一致
+2. 配置文件的路径分隔符应统一为 `/`
+3. 添加路径验证步骤确保格式正确
 
 ### 适用场景
-- CLI 工具生成配置文件时
-- 需要确保路径跨平台一致时
-- 生成 `.claude/` 等工具配置文件时
+- CLI 工具生成配置文件
+- 跨平台工具开发
+- Claude Code 命令生成
 
-### 改进建议
-在 `{{RULES_DIR}}/coding-standards.md` 中添加跨平台路径处理规范。
+### 代码示例
+
+```javascript
+// ❌ 错误做法 - Windows 下生成错误路径
+const filePath = path.join('.claude', 'commands', name + '.md');
+// Windows: ".claude\commands\xxx.md" ❌
+
+// ✅ 正确做法 - 统一 Unix 风格路径
+const filePath = path.posix.join('.claude', 'commands', name + '.md');
+// 任何平台: ".claude/commands/xxx.md" ✅
+```
+
+---
+
+最后更新: 2026-05-12

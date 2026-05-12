@@ -1,11 +1,23 @@
 # SKILL: plan-develop
-
-## Metadata
+---
 name: plan-develop
-version: 1.0.0
+version: 1.1.0
 granularity: intent
 type: internal
 phase: 5
+description: Design execution plan architecture, break down tasks into executable units, build dependency topology, and assess risks based on task assignments and user feedback.
+triggers:
+  - "create execution plan"
+  - "plan tasks"
+  - "break down work"
+  - "design plan"
+  - "task planning"
+tags:
+  - planning
+  - task-breakdown
+  - dependency-management
+  - risk-assessment
+---
 
 ## Preconditions
 preconditions:
@@ -15,71 +27,110 @@ preconditions:
 ## Input
 input:
   - name: claimed_tasks
-    type: data
+    type: data[]
     description: Tasks claimed by each Agent
+    items:
+      - task_id: string
+        agent: string
+        context: object
 
   - name: user_feedback
-    type: data
+    type: data[]
     description: User's answers to clarification issues
+    items:
+      - question_id: string
+        answer: string
 
   - name: project_md
     type: file
-    path: {{SPEC_DIR}}/SPEC.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/SPEC.md"
     description: Project analysis document
 
   - name: complexity_report
     type: file
-    path: {{SPEC_DIR}}/COMPLEXITY.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/COMPLEXITY.md"
     description: Complexity assessment report
 
 ## Output
 output:
   - name: execution_plan
     type: file
-    path: {{SPEC_DIR}}/projects/{{project_name}}/plan.md
-    description: Execution plan
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/plan.md"
+    description: Execution plan document
+    format: markdown
+    notes: |
+      Each project has its own plan.md in the project subdirectory
 
   - name: task_breakdown
     type: data
-    description: Task breakdown (with dependencies)
+    description: Task breakdown with dependencies
+    properties:
+      tasks: array
+      dependencies: object
+      phases: array
 
   - name: risk_assessment
-    type: data
-    description: Risk assessment
+    type: data[]
+    description: Risk assessment with mitigation measures
+    items:
+      - name: string
+        severity: enum
+        probability: enum
+        impact: string
+        mitigation: string
 
 ## Steps
 steps:
   - id: analyze-tasks
     description: Analyze task characteristics and dependencies
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: design-architecture
     description: Design the execution plan architecture
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: break-down-tasks
     description: Break down tasks into executable units
     type: internal
+    continue_on_error: false
+    timeout: 10m
 
   - id: build-dependency-graph
     description: Build dependency topology graph
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: assess-risks
     description: Assess risks and define mitigation measures
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: generate-plan
     description: Generate execution plan document
     type: internal
+    continue_on_error: false
+    timeout: 5m
+
+## Checkpoint
+checkpoint:
+  required: true
+  message: "Execution plan complete with {task_count} tasks across {phase_count} phases. Total estimated time: {total_hours}h. Identified {risk_count} risks ({high_risk_count} high). Please confirm: (1) Is the task breakdown appropriate? (2) Are dependencies correct? (3) Are delivery targets acceptable?"
 
 ## Hook Configuration
 hooks:
   on-complete:
     - trigger: on-plan-complete
-      action: auto-trigger-next-skill  # Auto-trigger plan-validate
+      action: auto-trigger-next-skill
+      next_skill: plan-validate
 
 ---
+
 # INSTRUCTIONS
 
 You are a planning expert. Design the execution plan and break down tasks based on task assignments and user feedback.
@@ -183,6 +234,22 @@ risks:
       3. Gradual rollout
 ```
 
+## Error Handling
+
+| Error Type | Handling Strategy | Recovery Action |
+|------------|-----------------|----------------|
+| Circular dependency detected | Reject plan | Restructure dependencies |
+| Task too large (> 4h) | Split task | Break into smaller units |
+| Missing agent capability | Request clarification | Add to clarifications |
+| Conflicting tasks | Prioritize | Use complexity level to decide |
+
+### Error Recovery Scenarios
+
+1. **Circular dependency found**: Identify source tasks; ask user to clarify intended order
+2. **Task scope too broad**: Split into subtasks; ensure each < 4 hours
+3. **Missing task dependency info**: Use conservative assumption; note in plan
+4. **Agent conflict**: Sequence same-agent tasks; allow parallel for different agents
+
 ## Output Format
 
 ```markdown
@@ -226,7 +293,7 @@ Task B ─┘
 
 ### Tasks 目录结构
 
-每个任务拆分为单独文件：
+Each task is split into individual files:
 
 ```
 {{SPEC_DIR}}/projects/{{project_name}}/tasks/
@@ -235,7 +302,7 @@ Task B ─┘
 └── ...
 ```
 
-每个任务文件格式：
+Each task file format:
 
 ```markdown
 # Task: task-001
@@ -274,8 +341,3 @@ Task B ─┘
 2. **Tasks must be executable**: With clear inputs, outputs, and acceptance criteria
 3. **Dependencies must be correct**: Circular dependencies will be rejected during plan-validate
 4. **Risks must be assessed**: High-risk tasks require extra attention
-
-## Checkpoint
-checkpoint:
-  required: true
-  message: "Execution plan generation complete. Please confirm the plan."

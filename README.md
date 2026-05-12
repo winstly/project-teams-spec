@@ -1,6 +1,26 @@
 # project-teams-spec
 
+[![npm version](https://img.shields.io/npm/v/project-teams-spec?style=flat-square)](https://www.npmjs.com/package/project-teams-spec)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen?style=flat-square)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square)](https://www.typescriptlang.org/)
+
 A multi-agent engineering specification execution system. Provides standardized Skill definitions, Agent definitions, and rule sets that can be injected into CLI tool directories, enabling tools to collaborate in a unified paradigm to achieve business goals.
+
+## Table of Contents
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Architecture](#architecture)
+- [Supported Tools](#supported-tools)
+- [Command System](#command-system)
+- [Skills Overview](#skills-overview)
+- [Agents](#agents)
+- [Directory Structure](#directory-structure)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Features
 
@@ -11,7 +31,14 @@ A multi-agent engineering specification execution system. Provides standardized 
 - **Interactive Installation**: Welcome screen + tool multi-select, ready to use out of the box
 - **Flexible Granularity**: INSTRUCTIONS support intent/procedural/protocol/conversational granularity
 
-## Installation
+## Quick Start
+
+### Prerequisites
+
+- Node.js >= 18.0.0
+- npm or yarn
+
+### Installation
 
 ```bash
 # Install globally via npm
@@ -20,8 +47,6 @@ npm install -g project-teams-spec
 # Or use npx directly
 npx project-teams-spec install
 ```
-
-## Quick Start
 
 ### Interactive Installation
 
@@ -58,7 +83,7 @@ project-teams-spec list
 project-teams-spec uninstall --tools claude
 ```
 
-## Invoke Commands
+### Invoke Commands
 
 After installation, use slash commands in your CLI tool:
 
@@ -69,6 +94,36 @@ After installation, use slash commands in your CLI tool:
 ```
 
 ## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Master (CLI Tool)                          │
+│                     project-teams-spec system                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                           Skills (9 phases)                        │
+│  ┌──────────┬──────────┬──────────┬──────────┬──────────┐          │
+│  │explore  │complexity │ claim    │aggregate │plan-dev  │          │
+│  ├──────────┼──────────┼──────────┼──────────┼──────────┤          │
+│  │plan-val │execute   │qa-verify │delivery  │          │          │
+│  └──────────┴──────────┴──────────┴──────────┴──────────┘          │
+├─────────────────────────────────────────────────────────────────────┤
+│              Agents (5 specialized agents)                         │
+│  ┌─────────┬──────────┬──────────┬─────────┬──────────┐            │
+│  │  java   │ frontend  │ backend  │   qa    │ reviewer │            │
+│  │ agent   │  agent    │  agent   │ agent   │          │            │
+│  └─────────┴──────────┴──────────┴─────────┴──────────┘            │
+├─────────────────────────────────────────────────────────────────────┤
+│                        Rules / Hooks / Commands                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+Workflow:
+  ┌────────────┐     ┌────────────┐     ┌────────────┐
+  │   Phase    │────▶│   Phase    │────▶│   Phase    │
+  │   N-1      │     │     N      │     │   N+1      │
+  └────────────┘     └────────────┘     └────────────┘
+```
+
+### Project Source Structure
 
 ```
 project-teams-spec/
@@ -88,14 +143,14 @@ project-teams-spec/
 │       └── welcome.ts                # Welcome screen
 ├── config/
 │   ├── skills/                       # 9 standard Skills
-│   ├── agents/                      # 5 Agent definitions
+│   ├── agents/                       # 5 Agent definitions
 │   ├── rules/                        # Rule files
 │   ├── hooks/                        # Claude Code Hook scripts
 │   └── commands/                     # Command templates
 ├── bin/
 │   └── cli.js                        # CLI entry point
 └── openspec/
-    └── changes/                      # OpenSpec change management
+    └── changes/                     # OpenSpec change management
 ```
 
 ## Supported Tools
@@ -125,8 +180,8 @@ Commands are auto-generated via the `src/core/command-generation/` module, suppo
 | Command | Description |
 |----------|-------------|
 | `/pts:full-analysis` | Complete project analysis workflow |
-| `/pts:plan-cycle` | Planning cycle: task claiming → plan validation |
-| `/pts:execution-cycle` | Execution cycle: task execution → delivery archival |
+| `/pts:plan-cycle` | Planning cycle: task claiming, plan validation |
+| `/pts:execution-cycle` | Execution cycle: task execution, delivery archival |
 
 ## Skills Overview
 
@@ -142,15 +197,28 @@ Commands are auto-generated via the `src/core/command-generation/` module, suppo
 | pts-qa-verify | 8 | protocol | Quality verification |
 | pts-delivery-close | 9 | procedural | Delivery and archival |
 
+### Granularity Types
+
+| Granularity | Description |
+|-------------|-------------|
+| `intent` | Autonomous decision-making based on goals |
+| `procedural` | Step-by-step execution with clear procedures |
+| `protocol` | Strict protocol-based coordination |
+| `conversational` | Interactive dialogue and clarification |
+
 ## Agents
 
-- **java-agent**: Java backend development expert
-- **frontend-agent**: Frontend development expert
-- **backend-agent**: Backend architecture expert
-- **qa-agent**: Quality verification expert
-- **code-reviewer**: Code review expert
+| Agent | Role | Expertise |
+|-------|------|----------|
+| java-agent | Java backend development expert | Java, Spring, Maven/Gradle |
+| frontend-agent | Frontend development expert | React, Vue, Angular, TypeScript |
+| backend-agent | Backend architecture expert | Microservices, APIs, Architecture |
+| qa-agent | Quality verification expert | Testing, QA, Verification |
+| code-reviewer | Code review expert | Code quality, Best practices |
 
-## Directory Structure After Installation
+## Directory Structure
+
+### Installation Output
 
 After installation, the target directory will contain:
 
@@ -160,22 +228,34 @@ After installation, the target directory will contain:
 │   ├── pts-project-explore/
 │   ├── pts-complexity-evaluate/
 │   ├── pts-agent-claim/
-│   └── ...
+│   ├── pts-issue-aggregate/
+│   ├── pts-plan-develop/
+│   ├── pts-plan-validate/
+│   ├── pts-task-execute/
+│   ├── pts-qa-verify/
+│   └── pts-delivery-close/
 ├── agents/                         # Agent definitions
 │   ├── java-agent/
 │   ├── frontend-agent/
-│   └── ...
+│   ├── backend-agent/
+│   ├── qa-agent/
+│   └── code-reviewer/
 ├── rules/                         # Rule sets
+│   ├── architecture.md
+│   ├── coding-standards.md
+│   └── naming-conventions.md
 ├── hooks/                         # Hook scripts (Claude Code only)
 │   ├── on-subagent-start.sh
 │   ├── on-subagent-stop.sh
-│   └── ...
+│   ├── on-session-end.sh
+│   ├── on-task-created.sh
+│   └── on-task-completed.sh
 ├── commands/
 │   └── pts/                       # Command definitions (with namespace)
 │       ├── full-analysis.md
 │       ├── plan-cycle.md
 │       └── execution-cycle.md
-└── .project-teams-spec-*-version  # Version tracking
+└── .project-teams-spec-*-version  # Version tracking file
 ```
 
 ## Troubleshooting
@@ -216,6 +296,56 @@ If a previous version was installed:
 project-teams-spec install --tools claude --force
 ```
 
+### Installation Fails
+
+```bash
+# Check Node.js version
+node --version  # Should be >= 18.0.0
+
+# Clean npm cache
+npm cache clean --force
+
+# Try with verbose output
+npm install -g project-teams-spec --verbose
+```
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/project-teams-spec.git
+cd project-teams-spec
+
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+
+# Run tests
+npm test
+
+# Link for local development
+npm link
+```
+
+### Code Style
+
+This project follows the coding standards defined in `config/rules/`:
+
+- 2 spaces for config files, 4 spaces for code
+- kebab-case for file names
+- UpperCamelCase for class names
+- lowerCamelCase for function names
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
+
 ## Documentation
 
 - [CLAUDE.md](CLAUDE.md) - Project architecture details
@@ -223,4 +353,4 @@ project-teams-spec install --tools claude --force
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details.

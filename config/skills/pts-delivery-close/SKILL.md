@@ -1,11 +1,23 @@
 # SKILL: delivery-close
-
-## 元数据
+---
 name: delivery-close
-version: 1.0.0
+version: 1.1.0
 granularity: procedural
 type: internal
 phase: 9
+description: Finalize project delivery by collecting deliverables, generating archive manifest, documenting lessons learned, and confirming delivery completion.
+triggers:
+  - "close delivery"
+  - "finalize delivery"
+  - "complete project"
+  - "close project"
+  - "archive delivery"
+tags:
+  - delivery
+  - archival
+  - lessons-learned
+  - finalization
+---
 
 ## Preconditions
 preconditions:
@@ -15,62 +27,128 @@ preconditions:
 ## Input
 input:
   - name: execution_results
-    type: data
+    type: data[]
     description: Execution results for each task
 
   - name: verification_report
     type: file
-    path: {{SPEC_DIR}}/verification.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/verification.md"
     description: Verification report
 
   - name: project_md
     type: file
-    path: ./PROJECT.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/SPEC.md"
     description: Project analysis document
+
+  - name: complexity_report
+    type: file
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/COMPLEXITY.md"
+    description: Complexity assessment report
 
 ## Output
 output:
   - name: deliverables
-    type: data
+    type: data[]
     description: Final deliverables checklist
+    items:
+      - category: string
+        files: string[]
+        line_stats: object
 
   - name: archive_manifest
     type: file
-    path: {{SPEC_DIR}}/archive-manifest.md
+    path: "{{SPEC_DIR}}/archive-manifest.md"
     description: Archive manifest
+    format: markdown
 
   - name: lessons
-    type: data
+    type: data[]
     description: Lessons learned entries
+    items:
+      - date: string
+        category: string
+        severity: string
+        phase: string
+        title: string
+        problem: string
+        solution: string
+
+  - name: delivery_summary
+    type: object
+    description: Summary of delivery statistics
+    properties:
+      total_files_changed: integer
+      lines_added: integer
+      lines_removed: integer
+      test_coverage: float
+      duration_hours: float
 
 ## Steps
 steps:
   - id: collect-artifacts
     description: Collect all deliverables
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: generate-manifest
     description: Generate archive manifest
     type: internal
+    continue_on_error: false
+    timeout: 3m
 
   - id: collect-lessons
     description: Collect lessons learned
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: update-agent-lessons
     description: Update each Agent's LESSONS_LEARNED.md
     type: internal
+    continue_on_error: false
+    timeout: 5m
+
+  - id: update-whitepaper
+    description: Update PROJECT_WHITEPAPER.md with execution record and lessons
+    type: internal
+    continue_on_error: false
+    timeout: 3m
+    notes: |
+      Update portfolio whitepaper at {{SPEC_DIR}}/PROJECT_WHITEPAPER.md:
+      1. Append to execution records: date, summary, compliance rate, artifacts
+      2. Add to lessons learned: effective practices, issues, solutions
+      3. Update project status
+      4. Update norms compliance if applicable
 
   - id: confirm-delivery
     description: Confirm delivery completion
     type: internal
+    continue_on_error: false
+    timeout: 2m
 
 ## Checkpoint
 checkpoint:
   required: true
-  message: "Delivery complete, please confirm the final deliverables."
+  message: "Delivery complete. Summary: {file_count} files changed, {lines_added} lines added, {lines_removed} removed, {coverage_percent}% test coverage. Archive manifest generated. Lessons learned: {lesson_count} entries. Please confirm final delivery."
+
+## Hook Configuration
+hooks:
+  on-complete:
+    - trigger: on-delivery-complete
+      action: notify-master
+      message: "Delivery completed successfully. Archive: {archive_path}"
+  on-lessons-updated:
+    - trigger: on-lessons-updated
+      action: update-whitepaper
+      target: PROJECT_WHITEPAPER.md
+  on-archive-ready:
+    - trigger: on-archive-ready
+      action: notify-master
+      message: "Archive manifest generated: {manifest_path}"
 
 ---
+
 # INSTRUCTIONS
 
 You are a delivery archival expert. Collect all deliverables, generate archive manifest, and document lessons learned.
@@ -153,6 +231,22 @@ Collection Dimensions:
 ├── Tool Usage: Do tools meet requirements?
 └── Technical Decisions: Are technical choices correct?
 ```
+
+## Error Handling
+
+| Error Type | Handling Strategy | Recovery Action |
+|------------|-----------------|----------------|
+| Missing artifact | Log warning | Document missing item |
+| Incomplete execution results | Proceed with available data | Note gaps in manifest |
+| Agent lesson file not found | Create new file | Initialize LESSONS_LEARNED.md |
+| Archive manifest generation fail | Generate minimal manifest | Document error reason |
+
+### Error Recovery Scenarios
+
+1. **Missing delivery file**: Document as "not delivered"; exclude from manifest
+2. **Incomplete statistics**: Use available metrics; note approximations
+3. **Lesson file corruption**: Create fresh file; lose history (document loss)
+4. **User requests partial delivery**: Support phased archiving
 
 ### 4. Update LESSONS_LEARNED.md
 

@@ -1,11 +1,23 @@
 # SKILL: issue-aggregate
-
-## Metadata
+---
 name: issue-aggregate
-version: 1.0.0
+version: 1.1.0
 granularity: conversational
 type: internal
 phase: 4
+description: Aggregate clarification requests from all Agents, analyze dependencies between issues, attempt auto-resolution, generate feedback form, and collect user responses.
+triggers:
+  - "aggregate issues"
+  - "collect clarifications"
+  - "user feedback"
+  - "resolve questions"
+  - "issue resolution"
+tags:
+  - issue-management
+  - clarification
+  - user-feedback
+  - decision-aggregation
+---
 
 ## Preconditions
 preconditions:
@@ -15,26 +27,48 @@ preconditions:
 ## Input
 input:
   - name: clarifications
-    type: data
+    type: data[]
     description: List of clarification requests from all Agents
+    items:
+      - task_id: string
+        agent: string
+        question: string
+        options: array
+        blocking: boolean
 
   - name: project_md
     type: file
-    path: {{SPEC_DIR}}/SPEC.md
+    path: "{{SPEC_DIR}}/SPEC.md"
     description: Project analysis document
+
+  - name: complexity_report
+    type: file
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/COMPLEXITY.md"
+    description: Complexity assessment report
 
 ## Output
 output:
   - name: issue_list
-    type: data
-    description: Aggregated issue list
+    type: data[]
+    description: Aggregated issue list with status
+    items:
+      - issue_id: string
+        task_id: string
+        agent: string
+        question: string
+        status: enum
+        resolution: string
 
   - name: user_feedback_request
     type: data
-    description: Feedback request form
+    description: Feedback request form for user
+    properties:
+      blocking_issues: array
+      non_blocking_issues: array
+      auto_resolved: array
 
   - name: resolved_issues
-    type: data
+    type: data[]
     description: List of resolved issues (ones the Master can answer directly from context)
 
 ## Steps
@@ -42,33 +76,61 @@ steps:
   - id: collect-all-clarifications
     description: Collect clarification requests from all Agents
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: analyze-dependencies
     description: Analyze dependencies between issues
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: attempt-resolution
     description: Attempt to resolve some issues directly from existing context
     type: internal
+    continue_on_error: false
+    timeout: 10m
 
   - id: generate-feedback-form
     description: Generate user feedback form
     type: internal
+    continue_on_error: false
+    timeout: 5m
 
   - id: wait-for-user-feedback
     description: Wait for user feedback
     type: internal
+    continue_on_error: true
+    timeout: 30m
 
   - id: update-issue-status
     description: Update issue status (resolved/pending)
     type: internal
+    continue_on_error: false
+    timeout: 3m
 
 ## Checkpoint
 checkpoint:
   required: true
-  message: "Issue aggregation complete. Please confirm each issue below."
+  message: "Issue aggregation complete. Total issues: {total_count}. Auto-resolved: {auto_count} (no user input needed). Pending user decision: {pending_count}. Please review and respond to the feedback form."
+
+## Hook Configuration
+hooks:
+  on-complete:
+    - trigger: on-issue-aggregate-complete
+      action: auto-trigger-next-skill
+      next_skill: plan-develop
+  on-auto-resolved:
+    - trigger: on-auto-resolved
+      action: notify-master
+      message: "Auto-resolved {count} issues without user input"
+  on-blocking-issues:
+    - trigger: on-blocking-issues-detected
+      action: pause-execution
+      message: "{count} blocking issues require user decision"
 
 ---
+
 # INSTRUCTIONS
 
 You are an issue aggregation coordinator. Aggregate all clarification requests from Agents, generate a feedback form, and wait for user confirmation.
@@ -112,6 +174,21 @@ Not auto-resolvable:
 ✗ Issues requiring external information
 ✗ Issues involving business logic
 ```
+
+## Error Handling
+
+| Error Type | Handling Strategy | Recovery Action |
+|------------|-----------------|----------------|
+| Circular dependency in issues | Break cycle | Ask user to prioritize |
+| Unresolvable conflict | Escalate | Request user arbitration |
+| User timeout | Proceed with default | Note as assumed answer |
+
+### Error Recovery Scenarios
+
+1. **Conflicting answers required**: Present both options; ask user to choose
+2. **Missing project context**: Request clarification; cannot auto-resolve
+3. **User provides partial answers**: Process available; track pending
+4. **Auto-resolution fails**: Move to user feedback; log attempt
 
 ### 4. Generate Feedback Form
 

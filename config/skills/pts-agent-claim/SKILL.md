@@ -1,11 +1,23 @@
 # SKILL: agent-claim
-
-## Metadata
+---
 name: agent-claim
-version: 1.0.0
+version: 1.1.0
 granularity: protocol
 type: agent-subprocess
 phase: 3
+description: Assign tasks to appropriate Agents based on complexity evaluation, collect confirmations, and aggregate clarification requests.
+triggers:
+  - "assign tasks"
+  - "claim tasks"
+  - "task assignment"
+  - "distribute work"
+  - "agent assignment"
+tags:
+  - task-assignment
+  - agent-coordination
+  - clarification
+  - distribution
+---
 
 ## Preconditions
 preconditions:
@@ -18,53 +30,85 @@ input:
   - name: agent_assignments
     type: data
     description: Agent assignment plan
+    properties:
+      agents: array
+      task_count_map: object
+      capabilities: object
 
   - name: project_md
     type: file
-    path: {{SPEC_DIR}}/SPEC.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/SPEC.md"
     description: Project analysis document
 
   - name: complexity_report
     type: file
-    path: {{SPEC_DIR}}/COMPLEXITY.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/COMPLEXITY.md"
     description: Complexity evaluation report
 
 ## Output
 output:
   - name: claimed_tasks
-    type: data
+    type: data[]
     description: Tasks claimed by each Agent (TaskDescriptor[])
+    items:
+      - task_id: string
+        agent: string
+        status: enum
+        context: object
 
   - name: impact_scope
     type: data
     description: Impact scope mapping
+    properties:
+      agent: string
+      affected_modules: string[]
+      risk_level: enum
 
   - name: clarifications
-    type: data
+    type: data[]
     description: List of clarification requests (ClarificationRequest[])
+    items:
+      - task_id: string
+        agent: string
+        question: string
+        options: array
+        blocking: boolean
 
 ## Steps
 steps:
   - id: distribute-tasks
     description: Distribute tasks to corresponding Agents
-    type: agent-subprocess
+    type: internal
     delegate_to: auto
+    continue_on_error: true
+    timeout: 5m
 
   - id: agent-claim-tasks
     description: Each Agent claims and confirms tasks
-    type: agent-subprocess
+    type: internal
+    continue_on_error: true
+    timeout: 10m
 
   - id: collect-clarifications
     description: Collect clarification requests from each Agent
     type: internal
+    continue_on_error: false
+    timeout: 5m
+
+## Checkpoint
+checkpoint:
+  required: true
+  message: "Task assignment complete. Assigned {task_count} tasks to {agent_count} agents. {claimed_count} tasks confirmed, {clarification_count} clarifications pending. Please confirm the assignment plan, then respond to pending clarifications."
 
 ## Hook Configuration
 hooks:
   on-complete:
     - trigger: on-claim-complete
-      action: auto-trigger-next-skill  # Auto-trigger issue-aggregate
+      action: auto-trigger-next-skill
+      next_skill: issue-aggregate
 
 ---
+
 # INSTRUCTIONS
 
 You are a task assignment coordinator. Assign tasks to each Agent based on the complexity evaluation results.
@@ -102,6 +146,22 @@ options:
   - "B: Offline migration"
 blocking: true
 ```
+
+## Error Handling
+
+| Error Type | Handling Strategy | Recovery Action |
+|------------|-----------------|----------------|
+| Agent unavailable | Skip agent, reassign tasks | Notify user |
+| Task rejected | Log rejection, try next agent | Track rejected tasks |
+| Clarification timeout | Proceed without answer | Mark as blocking issue |
+| Assignment conflict | Resolve by priority | Use complexity level |
+
+### Error Recovery Scenarios
+
+1. **Agent rejects task**: Record rejection; attempt reassignment to same-capability agent
+2. **No agent can handle task**: Add to clarifications; request user assignment
+3. **Clarification not answered**: Continue with default; note assumption
+4. **Agent capacity exceeded**: Redistribute load; respect agent limits
 
 ## Execution Flow
 
@@ -150,8 +210,3 @@ All Agent clarification requests are aggregated for processing in the issue-aggr
 1. **Tasks must be assigned to appropriate Agents**: Match based on tech stack and capabilities
 2. **ClarificationRequests must be complete**: Include question, options, and blocking status
 3. **Blocked tasks cannot be executed**: Until clarification issues are resolved
-
-## Checkpoint
-checkpoint:
-  required: true
-  message: "Task assignment complete. Please confirm the assignment plan for each Agent."

@@ -1,11 +1,23 @@
 # SKILL: task-execute
-
-## 元数据
+---
 name: task-execute
-version: 1.0.0
+version: 1.1.0
 granularity: protocol
 type: agent-subprocess
 phase: 7
+description: Coordinate multiple Agents to execute tasks according to plan, manage task scheduling, monitor execution progress, handle conflicts, and aggregate results.
+triggers:
+  - "execute tasks"
+  - "run tasks"
+  - "start execution"
+  - "dispatch tasks"
+  - "task execution"
+tags:
+  - execution
+  - agent-coordination
+  - task-scheduling
+  - results-aggregation
+---
 
 ## Preconditions
 preconditions:
@@ -19,78 +31,333 @@ input:
     type: data
     description: Task breakdown results with dependency topology
     required: true
+    properties:
+      tasks: array
+      dependencies: object
+      phases: array
 
   - name: agent_assignments
     type: data
     description: Agent assignment plan
     required: true
+    properties:
+      agents: string[]
+      task_count_map: object
 
   - name: project_md
     type: file
-    path: ./PROJECT.md
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/SPEC.md"
     description: Project analysis document (provides context)
     required: true
 
 ## Output
 output:
   - name: execution_results
-    type: data
+    type: data[]
     description: Execution results for each task (TaskResult[])
+    items:
+      - task_id: string
+        status: enum
+        output: object
+        issues: array
+        metrics: object
 
   - name: execution_status
-    type: data
+    type: object
     description: Overall execution status
+    properties:
+      total_tasks: integer
+      completed: integer
+      failed: integer
+      blocked: integer
+      in_progress: integer
 
   - name: artifacts
-    type: data
+    type: data[]
     description: List of file changes produced
+    items:
+      - path: string
+        type: enum
+        lines_added: integer
+        lines_removed: integer
+
+  - name: conflicts
+    type: data[]
+    description: File change conflicts detected
+    required: false
+    items:
+      - file_path: string
+        conflicting_tasks: string[]
+        resolution: enum
 
 ## Steps
 steps:
   - id: initialize-executors
     description: Initialize executors, prepare context for each Agent
     type: internal
+    continue_on_error: false
+    timeout: 2m
 
   - id: schedule-tasks
     description: Schedule tasks based on dependency topology, execute independent tasks in parallel
     type: internal
+    continue_on_error: false
+    timeout: 5m
+
+  - id: pre-execution-rules-load
+    description: Load project rules and agent-specific rules for each task before dispatch
+    type: internal
+    continue_on_error: false
+    timeout: 2m
+    notes: |
+      Before each agent dispatch:
+      1. Read {{RULES_DIR}}/*.md for project-level rules
+      2. Read {{AGENTS_DIR}}/{agent}/rules/*.md for agent-specific rules
+      3. Read {{SPEC_DIR}}/PROJECT_WHITEPAPER.md for current ADR and validation rules
+      4. Inject rules_context into agent prompt
 
   - id: dispatch-to-agents
-    description: Dispatch tasks to corresponding Agents
+    description: Dispatch tasks to corresponding Agents with rules context
     type: agent-subprocess
-    delegate_to: auto  # Assigned based on agent field in task_breakdown
+    delegate_to: auto
+    continue_on_error: true
+    timeout: 30m
+    notes: |
+      For each task, build prompt with:
+      1. Agent config from {{AGENTS_DIR}}/{agent}/agent.md
+      2. Task descriptor from {{SPEC_DIR}}/projects/{project}/tasks/{id}.md
+      3. Project context from {{SPEC_DIR}}/SPEC.md
+      4. **Rules context from norm-load (see pre-execution-rules-load)**
 
   - id: monitor-execution
     description: Monitor execution progress of each Agent
     type: internal
+    continue_on_error: false
+    timeout: 1m
+
+  - id: milestone-checkpoint
+    description: Milestone checkpoint - wait for user confirmation before proceeding to next milestone
+    type: human-action
+    continue_on_error: false
+    timeout: 10m
+    notes: |
+      For iterative delivery, pause after each milestone:
+
+      1. Display milestone completion summary:
+         - Tasks completed: N/Total
+         - Artifacts produced
+         - Issues encountered
+
+      2. Wait for user decision:
+         - [Continue] Proceed to next milestone
+         - [Verify] Review artifacts before proceeding
+         - [Fix] Request changes to current milestone
+         - [Abort] Stop execution
+
+      3. Record user decision and proceed accordingly
 
   - id: collect-results
     description: Collect TaskResult from each Agent
     type: internal
+    continue_on_error: false
+    timeout: 2m
 
   - id: detect-conflicts
     description: Detect file change conflicts
     type: internal
+    continue_on_error: false
+    timeout: 3m
+
+  - id: retrospective-analysis
+    description: Conduct retrospective analysis to identify lessons learned and promote effective practices
+    type: internal
+    continue_on_error: true
+    timeout: 5m
+    notes: |
+      After execution completes:
+      1. Analyze execution results
+      2. Evaluate norms compliance rate
+      3. Identify practices to promote to norms
+      4. Propose updates to agent-specific or project-level norms
+      5. Prepare updates for PROJECT_WHITEPAPER.md
+
+  - id: archive-execution
+    description: Archive execution artifacts and update whitepaper
+    type: internal
+    continue_on_error: true
+    timeout: 3m
+    notes: |
+      After retrospective:
+      1. Create archive in {{SPEC_DIR}}/archive/{date}_{execution-id}/
+      2. Save execution summary, task results, artifacts manifest
+      3. Update PROJECT_WHITEPAPER.md with execution record
+      4. Apply any approved norm updates
 
   - id: report-completion
-    description: Report execution completion status
+    description: Report execution completion status with retrospective summary
     type: internal
+    continue_on_error: false
+    timeout: 2m
 
 ## Checkpoint
 checkpoint:
-  required: false
-  message: null  # task-execute is a continuous process, auto-advanced via Hook
+  required: true
+  message: "Milestone checkpoint: {milestone_name} completed with {completed_tasks}/{total_tasks} tasks. Artifacts: {artifacts}. Awaiting user confirmation before proceeding to next milestone."
 
 ## Hook Configuration
 hooks:
   on-execute-complete:
     - trigger: on-task-execute-complete
-      action: auto-trigger-next-skill  # Auto-trigger qa-verify
+      action: prompt-milestone-confirmation
+      next_skill: qa-verify
+  on-milestone-complete:
+    - trigger: on-milestone-complete
+      action: wait-for-confirmation
+      options:
+        - Continue to next milestone
+        - Review artifacts
+        - Request changes
+  on-execute-failure:
+    - trigger: on-task-execute-failure
+      action: notify-master
+      fallback: retry-task
+  on-norm-load:
+    - trigger: on-norm-load-complete
+      action: inject-to-prompt
+      target: agent-execution-prompt
+  on-retrospective-complete:
+    - trigger: on-retrospective-complete
+      action: confirm-norm-updates
+      next_skill: archive
+  on-archive-complete:
+    - trigger: on-archive-complete
+      action: notify-master
+      message: "Execution archived and whitepaper updated"
 
 ---
+
 # INSTRUCTIONS
 
 You are a task execution coordinator. When the planning phase is complete, you need to coordinate multiple Agents to execute tasks.
+
+## Critical: Milestone-Based Iterative Delivery
+
+**For large/complex projects, use milestone-based execution instead of running all tasks at once.**
+
+### Milestone Execution Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    MILESTONE-BASED EXECUTION                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
+│  │ MILESTONE M1 │───▶│   QA VERIFY   │───▶│   DELIVER    │     │
+│  │ Execute M1   │    │   Verify M1   │    │   Deliver M1 │     │
+│  │   Tasks      │    │               │    │               │     │
+│  └──────────────┘    └──────────────┘    └──────────────┘     │
+│         │                   │                   │              │
+│         │ User Confirm      │ User Confirm      │ User Confirm │
+│         ▼                   ▼                   ▼              │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
+│  │ MILESTONE M2 │───▶│   QA VERIFY   │───▶│   DELIVER    │     │
+│  │   ...        │    │   ...        │    │   ...        │     │
+│  └──────────────┘    └──────────────┘    └──────────────┘     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### How to Execute by Milestone
+
+1. **Load milestones from plan**
+   ```typescript
+   // Load plan.md and extract milestone definitions
+   const plan = await readFile(`{{SPEC_DIR}}/projects/${project}/plan.md`);
+   const milestones = parseMilestones(plan);
+   ```
+
+2. **Execute tasks within milestone**
+   ```typescript
+   for (const task of milestone.tasks) {
+     // Dispatch to Agent
+     const result = await Agent({
+       subagent_type: task.agent_type,
+       prompt: buildPrompt(task),
+       description: `[Milestone: ${milestone.name}] ${task.task_id}`
+     });
+   }
+   ```
+
+3. **Milestone checkpoint (REQUIRED)**
+   ```
+   ╔══════════════════════════════════════════════════╗
+   ║  MILESTONE COMPLETED                            ║
+   ║  ─────────────────────────────────────────────  ║
+   ║  Milestone: {name}                              ║
+   ║  Tasks: {completed}/{total} completed          ║
+   ║  Artifacts: {list}                             ║
+   ║                                                  ║
+   ║  Awaiting user confirmation...                  ║
+   ╚══════════════════════════════════════════════════╝
+   ```
+
+4. **Wait for user before proceeding**
+
+## Critical: Subagent Dispatch Implementation
+
+**The key bug to fix:** Previous implementations described the process but did NOT actually dispatch subagents using the Agent() tool.
+
+### How to Dispatch Subagents
+
+**MUST use the Agent() tool** for each task:
+
+```typescript
+// 1. Load agent config
+const agentConfig = await readFile(`{{AGENTS_DIR}}/${task.agent}/agent.md`);
+
+// 2. Load task details
+const taskDetail = await readFile(`{{SPEC_DIR}}/projects/${project}/tasks/${task.taskId}.md`);
+
+// 3. Load project context
+const projectContext = await readFile(`{{SPEC_DIR}}/SPEC.md`);
+
+// 4. Load rules
+const rules = await readFile(`{{RULES_DIR}}/coding-standards.md`);
+const agentRules = await readFile(`{{AGENTS_DIR}}/${task.agent}/rules/coding.md`);
+
+// 5. Build prompt
+const prompt = buildPrompt(agentConfig, task, projectContext, rules);
+
+// 6. DISPATCH USING AGENT() TOOL
+const result = await Agent({
+  subagent_type: "general-purpose",  // or "oh-my-claude:executor"
+  prompt: prompt,
+  description: `Execute: ${task.task_id}`
+});
+
+// 7. Wait for completion and record result
+results.push(result);
+```
+
+### Common Mistake to Avoid
+
+❌ **WRONG**: Just describing the process without calling Agent()
+```
+// This does NOT execute tasks!
+console.log("Would dispatch to subagent...");
+return { dispatched: true };  // FAKE result!
+```
+
+✅ **CORRECT**: Actually call the Agent() tool
+```
+// This actually executes the task
+const result = await Agent({
+  subagent_type: "general-purpose",
+  prompt: fullPrompt,
+  description: `Execute: ${task.task_id}`
+});
+return result;
+```
 
 ## Three-Phase Subagent Dispatch
 
@@ -98,11 +365,29 @@ For each TaskDescriptor, execute a three-phase review process:
 
 ### Phase 1: Implementer
 
-1. Read agent config from `{{AGENTS_DIR}}/{task.agent}/agent.md`
-2. Read task descriptor from `.project-teams-spec/projects/{project}/tasks/{task-id}.md`
-3. Read project context from `.project-teams-spec/SPEC.md`
-4. Build prompt from agent config + task descriptor + project context
-5. Use Agent tool to dispatch subagent:
+1. **Load Rules Context** (NEW - Critical)
+   ```typescript
+   // 1.1 Load project-level rules
+   const projectRules = await readFile(`{{RULES_DIR}}/coding-standards.md`);
+   const architectureRules = await readFile(`{{RULES_DIR}}/architecture.md`);
+   const namingRules = await readFile(`{{RULES_DIR}}/naming-conventions.md`);
+
+   // 1.2 Load agent-specific rules
+   const agentRules = await readFile(`{{AGENTS_DIR}}/${task.agent}/rules/coding.md`);
+   const agentReviewRules = await readFile(`{{AGENTS_DIR}}/${task.agent}/rules/review.md`);
+
+   // 1.3 Load whitepaper for current ADR
+   const whitepaper = await readFile(`{{SPEC_DIR}}/PROJECT_WHITEPAPER.md`);
+
+   // 1.4 Build rules context
+   const rulesContext = buildRulesContext(projectRules, agentRules, whitepaper);
+   ```
+
+2. Read agent config from `{{AGENTS_DIR}}/{task.agent}/agent.md`
+3. Read task descriptor from `.project-teams-spec/projects/{project}/tasks/{task-id}.md`
+4. Read project context from `.project-teams-spec/SPEC.md`
+5. Build prompt from agent config + task descriptor + project context + **rules context**
+6. Use Agent tool to dispatch subagent:
 
 ```typescript
 Agent({
@@ -134,10 +419,27 @@ Agent({
    const projectContext = await readFile(`{{SPEC_DIR}}/SPEC.md`);
    ```
 
-4. **构建完整 Prompt**
+4. **构建完整 Prompt（包含规则上下文）**
    ```typescript
    const fullPrompt = `
    \${agentConfig}
+
+   ---
+
+   ## Rules Context (MUST FOLLOW)
+
+   ### Project-Level Rules
+   \${projectRules}
+
+   ### Agent-Specific Rules
+   \${agentRules}
+
+   ### Current ADR (Architecture Decisions)
+   From PROJECT_WHITEPAPER.md:
+   \${currentADR}
+
+   ### CRITICAL RULES - MUST FOLLOW
+   \${criticalRules}
 
    ---
 
@@ -157,6 +459,15 @@ Agent({
 
    ### Project Context
    \${projectContext}
+
+   ---
+
+   ## Execution Rules
+
+   1. **Before writing code**: Verify against all loaded rules
+   2. **During implementation**: Follow coding standards strictly
+   3. **After implementation**: Self-review against review checklist
+   4. **Report deviations**: Note any rules that couldn't be followed and why
    `;
    ```
 
@@ -269,7 +580,37 @@ Conflict Detection:
 - Same file, same region: conflict, pause and wait for user decision
 ```
 
-### TaskDescriptor Format
+## Error Handling
+
+| Error Type | Handling Strategy | Recovery Action |
+|------------|-----------------|----------------|
+| Agent timeout | Retry (max 2 times) | Reassign or skip task |
+| Agent crash | Log and retry | Request manual intervention |
+| File conflict | Pause conflicting tasks | Request user decision |
+| Dependency blocked | Block dependent tasks | Wait for resolution |
+| Resource exhaustion | Pause scheduling | Request resource cleanup |
+
+### Timeout Handling
+
+```
+1. Set task deadline (default: 30 minutes)
+2. Mark as blocked after timeout
+3. Notify user: continue waiting / skip / abort
+```
+
+### Conflict Handling
+
+```
+1. File conflict detected
+2. Pause related tasks
+3. Notify user of conflict details
+4. After user decision:
+   - Accept one version
+   - Merge both versions
+   - Re-execute both tasks
+```
+
+## TaskDescriptor Format
 
 Each task is dispatched in the following format:
 
@@ -299,9 +640,43 @@ expected_output: |
   Modified files and change summary
 
 deadline: "30m"
+
+# Milestone for iterative delivery
+milestone: "m1-core-auth"  # Groups tasks for incremental delivery
+priority: 1                # Lower = higher priority within milestone
 ```
 
-### TaskResult Format
+## Milestone Format
+
+Milestones group related tasks for incremental delivery:
+
+```yaml
+milestones:
+  - id: "m1-core-auth"
+    name: "Core Authentication"
+    description: "Basic authentication infrastructure"
+    tasks: ["task-001", "task-002", "task-003"]
+    dependencies: []  # Other milestone IDs
+    estimated_duration: "2h"
+
+  - id: "m2-user-management"
+    name: "User Management"
+    description: "User CRUD operations"
+    tasks: ["task-004", "task-005"]
+    dependencies: ["m1-core-auth"]  # Wait for core auth
+    estimated_duration: "3h"
+```
+
+## Milestone-Based Delivery Strategy
+
+| Complexity | Milestone Count | Strategy |
+|------------|-----------------|----------|
+| S (<1K LOC) | 1 (all tasks) | Single delivery |
+| M (1-10K) | 2-3 milestones | Core → Features → Polish |
+| L (10-50K) | 4-6 milestones | Per-module delivery |
+| XL (>50K) | 6+ milestones | Sprint-style iterations |
+
+## TaskResult Format
 
 Each Agent returns results in the following format:
 
@@ -335,138 +710,6 @@ Each Agent returns results in the following format:
     "tests_failed": 0
   }
 }
-```
-
-### Status Values
-
-| Status | Meaning | Next Action |
-|--------|---------|-------------|
-| `success` | Task completed without issues | Collect results, continue to next task |
-| `failed` | Task failed | Log error, mark task as blocked |
-| `blocked` | Task blocked (dependency incomplete or conflict) | Wait for dependency resolution or user decision |
-| `needs_clarification` | Clarification needed | Aggregate to issue-aggregate phase |
-
-### Implementation Status
-
-| Status | Meaning | Next Action |
-|--------|---------|-------------|
-| DONE | Task completed | Proceed to Spec Review |
-| BLOCKED | Task blocked | Log error, mark task as blocked |
-
-### Spec Review Status
-
-| Status | Meaning | Next Action |
-|--------|---------|-------------|
-| approved | Implementation matches spec | Proceed to Code Review |
-| issues_found | Spec issues detected | Report issues, may need revision |
-
-### Code Review Status
-
-| Status | Meaning | Next Action |
-|--------|---------|-------------|
-| approved | Code quality passed | Task success |
-| issues_found | Quality issues detected | Report issues, may need revision |
-
-### Final TaskResult Status
-
-| Combination | Final Status |
-|--------------|--------------|
-| DONE + approved + approved | success |
-| DONE + issues_found + - | warning |
-| DONE + - + issues_found | warning |
-| BLOCKED | blocked |
-
-## Execution Flow
-
-### 1. Initialization
-
-```
-Read task_breakdown:
-├── tasks: Task[]        # Task list
-├── dependencies: Map     # Task dependency relationships
-└── agent_mapping: Map    # Task -> Agent mapping
-
-Read agent_assignments:
-├── agents: Agent[]      # Agent list
-├── capabilities: Map    # Agent capabilities
-└── availability: Map    # Agent availability status
-```
-
-### 2. Task Scheduling
-
-```
-Build dependency topology:
-Task A (no deps) ─┬─→ Task D
-                  │
-Task B ──→ Task C┘
-
-Scheduling Strategy:
-1. Scan all tasks, identify tasks with no dependencies
-2. Assign tasks by Agent
-3. Launch tasks for different Agents in parallel
-4. Monitor task completion, update dependency graph
-5. Repeat until all tasks complete
-```
-
-### 3. Concurrency Control
-
-```
-File Lock Strategy (simplified):
-- Agent declares files to modify before execution
-- Master maintains file lock table
-- Only one Agent can modify a file at a time
-- On conflict, pause subsequent tasks and wait for user decision
-
-Conflict Detection Timing:
-- When TaskResult is submitted
-- Check file paths in changes
-- Compare with other in-progress/completed tasks
-```
-
-### 4. Result Aggregation
-
-```
-Collect all TaskResults:
-{
-  "total_tasks": 10,
-  "completed": 8,
-  "failed": 1,
-  "blocked": 1,
-  "artifacts": [...],
-  "issues": [...],
-  "conflicts": [...]
-}
-```
-
-## Error Handling
-
-### Agent Execution Failure
-
-```
-1. Log failure reason to TaskResult
-2. Check if retryable (max 2 retries)
-3. On retry failure: mark as failed, update dependency graph
-4. Notify Master and user
-```
-
-### Timeout Handling
-
-```
-1. Set task deadline
-2. Mark as blocked after timeout
-3. Notify user: continue waiting / skip / abort
-```
-
-### Conflict Handling
-
-```
-1. File conflict detected
-2. Pause related tasks
-3. Notify user of conflict details
-4. After user decision:
-   - Accept one version
-   - Merge both versions
-   - Re-execute both tasks
 ```
 
 ## Key Constraints
