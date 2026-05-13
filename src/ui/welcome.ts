@@ -21,13 +21,13 @@ ${CYAN}╔═══════════════════════�
 ╚═══════════════════════════════════════════════════════╝${RESET}
 
 ${BOLD}Multi-Agent Engineering Spec System${RESET}
-${DIM}Version 1.0.0 | Streamline your development workflow${RESET}
+${DIM}Version 1.1.0 | Streamline your development workflow${RESET}
 `;
 
 const FEATURES = [
-  { icon: '⚡', text: '9 Standard Workflow Phases', color: CYAN },
+  { icon: '⚡', text: '12 Skills (9 Core + 3 Utility)', color: CYAN },
   { icon: '🤖', text: '5 Specialized Agents', color: GREEN },
-  { icon: '📋', text: 'Coding Standards & Rules', color: YELLOW },
+  { icon: '📋', text: 'Milestone-Based Iterative Delivery', color: YELLOW },
   { icon: '🪝', text: 'Claude Code Hook Integration', color: MAGENTA },
 ];
 
