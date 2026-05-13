@@ -49,7 +49,7 @@ input:
 output:
   - name: verification_report
     type: file
-    path: "{{SPEC_DIR}}/verification.md"
+    path: "{{SPEC_DIR}}/projects/{{project_name}}/verification.md"
     description: Verification report
     format: markdown
 
@@ -201,7 +201,7 @@ After fix:
 ## Verification Report Format
 
 ```markdown
-# {{SPEC_DIR}}/verification.md
+# {{SPEC_DIR}}/projects/{{project_name}}/verification.md
 
 ## 验证报告
 

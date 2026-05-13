@@ -367,7 +367,7 @@ Each sprint:
 ## Output Format
 
 ```markdown
-# {{SPEC_DIR}}/COMPLEXITY.md
+# {{SPEC_DIR}}/projects/{{project_name}}/COMPLEXITY.md
 
 ## 复杂度评估报告
 

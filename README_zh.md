@@ -24,7 +24,8 @@
 
 ## 功能特性
 
-- **标准化流程**: 9 个标准 Skill 覆盖从项目分析到交付归档的完整流程
+- **标准化流程**: 12 个 Skill 覆盖从项目分析到交付归档的完整流程
+- **里程碑驱动交付**: 大型/复杂项目支持用户检查点迭代交付
 - **多 Agent 协作**: 支持 Java、Frontend、Backend、QA、Code Reviewer 等 Agent
 - **多工具支持**: 兼容 Claude Code、OpenCode、Trae 等 CLI 工具
 - **命令生成**: 自动生成带命名空间的命令（如 `/pts:full-analysis`）
@@ -142,7 +143,7 @@ project-teams-spec/
 │   └── ui/
 │       └── welcome.ts                # 欢迎页面
 ├── config/
-│   ├── skills/                       # 9 个标准 Skill
+│   ├── skills/                       # 12 个 Skill（9 核心 + 3 工具类）
 │   ├── agents/                       # 5 个 Agent 定义
 │   ├── rules/                        # 规则文件
 │   ├── hooks/                        # Claude Code Hook 脚本
@@ -185,6 +186,8 @@ project-teams-spec/
 
 ## Skills 概览
 
+### 核心流程 Skills（9 个阶段）
+
 | Skill | 阶段 | 粒度 | 说明 |
 |-------|------|------|------|
 | pts-project-explore | 1 | intent | 分析项目结构 |
@@ -193,9 +196,17 @@ project-teams-spec/
 | pts-issue-aggregate | 4 | conversational | 汇总问题 |
 | pts-plan-develop | 5 | intent | 制定执行计划 |
 | pts-plan-validate | 6 | procedural | 评审方案 |
-| pts-task-execute | 7 | protocol | 执行任务 |
+| pts-task-execute | 7 | protocol | 使用 subagent 执行任务 |
 | pts-qa-verify | 8 | protocol | 质量验证 |
 | pts-delivery-close | 9 | procedural | 交付归档 |
+
+### 工具类 Skills
+
+| Skill | 类型 | 说明 |
+|-------|------|------|
+| pts-norm-load | utility | 执行前加载规则上下文 |
+| pts-retrospective | utility | 进行复盘分析 |
+| pts-archive | utility | 归档执行产物 |
 
 ### 粒度类型
 

@@ -24,7 +24,8 @@ A multi-agent engineering specification execution system. Provides standardized 
 
 ## Features
 
-- **Standardized Workflow**: 9 standard Skills covering the complete flow from project analysis to delivery archival
+- **Standardized Workflow**: 12 Skills covering the complete flow from project analysis to delivery archival
+- **Milestone-Based Delivery**: Iterative delivery with user checkpoints for large/complex projects
 - **Multi-Agent Collaboration**: Supports Java, Frontend, Backend, QA, Code Reviewer and other Agents
 - **Multi-Tool Support**: Compatible with Claude Code, OpenCode, Trae and other CLI tools
 - **Command Generation**: Auto-generates namespaced commands (e.g., `/pts:full-analysis`)
@@ -142,7 +143,7 @@ project-teams-spec/
 │   └── ui/
 │       └── welcome.ts                # Welcome screen
 ├── config/
-│   ├── skills/                       # 9 standard Skills
+│   ├── skills/                       # 12 Skills (9 core + 3 utility)
 │   ├── agents/                       # 5 Agent definitions
 │   ├── rules/                        # Rule files
 │   ├── hooks/                        # Claude Code Hook scripts
@@ -185,6 +186,8 @@ Commands are auto-generated via the `src/core/command-generation/` module, suppo
 
 ## Skills Overview
 
+### Core Workflow Skills (9 phases)
+
 | Skill | Phase | Granularity | Description |
 |-------|-------|------------|-------------|
 | pts-project-explore | 1 | intent | Analyze project structure |
@@ -193,9 +196,17 @@ Commands are auto-generated via the `src/core/command-generation/` module, suppo
 | pts-issue-aggregate | 4 | conversational | Aggregate issues |
 | pts-plan-develop | 5 | intent | Develop execution plan |
 | pts-plan-validate | 6 | procedural | Review and validate plan |
-| pts-task-execute | 7 | protocol | Execute tasks |
+| pts-task-execute | 7 | protocol | Execute tasks with subagents |
 | pts-qa-verify | 8 | protocol | Quality verification |
 | pts-delivery-close | 9 | procedural | Delivery and archival |
+
+### Utility Skills
+
+| Skill | Type | Description |
+|-------|------|-------------|
+| pts-norm-load | utility | Load rules context before execution |
+| pts-retrospective | utility | Conduct retrospective analysis |
+| pts-archive | utility | Archive execution artifacts |
 
 ### Granularity Types
 
