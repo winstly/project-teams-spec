@@ -89,39 +89,53 @@ project-teams-spec uninstall --tools claude
 After installation, use slash commands in your CLI tool:
 
 ```bash
-/pts:full-analysis    # Complete project analysis
-/pts:plan-cycle       # Planning cycle
-/pts:execution-cycle  # Execution cycle
+/pts:analyze    # Project analysis and requirement clarification
+/pts:plan        # Agent matching and execution plan
+/pts:execute     # Task execution and delivery
+```
+
+### Workflow Flow
+
+```
+/pts:analyze → /pts:plan → /pts:execute
 ```
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         Master (CLI Tool)                          │
-│                     project-teams-spec system                      │
+│                         PTS WORKFLOW                                │
 ├─────────────────────────────────────────────────────────────────────┤
-│                           Skills (9 phases)                        │
-│  ┌──────────┬──────────┬──────────┬──────────┬──────────┐          │
-│  │explore  │complexity │ claim    │aggregate │plan-dev  │          │
-│  ├──────────┼──────────┼──────────┼──────────┼──────────┤          │
-│  │plan-val │execute   │qa-verify │delivery  │          │          │
-│  └──────────┴──────────┴──────────┴──────────┴──────────┘          │
+│                                                                   │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
+│  │ ANALYZE     │───▶│  PLAN        │───▶│  EXECUTE     │     │
+│  │ CYCLE       │    │  CYCLE       │    │  CYCLE       │     │
+│  └──────────────┘    └──────────────┘    └──────────────┘     │
+│                                                                   │
+│     /pts:analyze          /pts:plan           /pts:execute       │
+│                                                                   │
 ├─────────────────────────────────────────────────────────────────────┤
-│              Agents (5 specialized agents)                         │
-│  ┌─────────┬──────────┬──────────┬─────────┬──────────┐            │
-│  │  java   │ frontend  │ backend  │   qa    │ reviewer │            │
-│  │ agent   │  agent    │  agent   │ agent   │          │            │
-│  └─────────┴──────────┴──────────┴─────────┴──────────┘            │
-├─────────────────────────────────────────────────────────────────────┤
-│                        Rules / Hooks / Commands                     │
+│                      Core Skills (12 phases)                        │
+│                                                                   │
+│  Analyze Cycle (Phases 1-3)                                       │
+│  ┌──────────────┬──────────────┬──────────────┐                │
+│  │project-explore│complexity-eval│requirement-  │                │
+│  │  (phase 1)  │  (phase 2)   │  clarify (3) │                │
+│  └──────────────┴──────────────┴──────────────┘                │
+│                                                                   │
+│  Plan Cycle (Phases 4-8)                                         │
+│  ┌──────────────┬──────────────┬──────────────┬──────────┬─────┐│
+│  │agent-match  │pyramid-      │master-       │plan-     │plan-││
+│  │  (phase 4) │  analyze(5)  │  summarize(6) │develop(7)│val(8)││
+│  └──────────────┴──────────────┴──────────────┴──────────┴─────┘│
+│                                                                   │
+│  Execute Cycle (Phases 9-12)                                     │
+│  ┌──────────────┬──────────────┬──────────────┬──────────────┐   │
+│  │norm-load    │task-execute │qa-verify    │delivery-    │   │
+│  │  (phase 9) │  (phase 10) │  (phase 11) │  close(12)  │   │
+│  └──────────────┴──────────────┴──────────────┴──────────────┘   │
+│                                                                   │
 └─────────────────────────────────────────────────────────────────────┘
-
-Workflow:
-  ┌────────────┐     ┌────────────┐     ┌────────────┐
-  │   Phase    │────▶│   Phase    │────▶│   Phase    │
-  │   N-1      │     │     N      │     │   N+1      │
-  └────────────┘     └────────────┘     └────────────┘
 ```
 
 ### Project Source Structure
@@ -143,7 +157,7 @@ project-teams-spec/
 │   └── ui/
 │       └── welcome.ts                # Welcome screen
 ├── config/
-│   ├── skills/                       # 12 Skills (9 core + 3 utility)
+│   ├── skills/                       # 12 Skills (sequential phases 1-12)
 │   ├── agents/                       # 5 Agent definitions
 │   ├── rules/                        # Rule files
 │   ├── hooks/                        # Claude Code Hook scripts
