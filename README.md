@@ -200,27 +200,22 @@ Commands are auto-generated via the `src/core/command-generation/` module, suppo
 
 ## Skills Overview
 
-### Core Workflow Skills (9 phases)
+### Core Workflow Skills (12 phases)
 
 | Skill | Phase | Granularity | Description |
 |-------|-------|------------|-------------|
-| pts-project-explore | 1 | intent | Analyze project structure |
+| pts-project-explore | 1 | intent | Scan and analyze project |
 | pts-complexity-evaluate | 2 | procedural | Evaluate complexity |
-| pts-agent-claim | 3 | protocol | Assign tasks |
-| pts-issue-aggregate | 4 | conversational | Aggregate issues |
-| pts-plan-develop | 5 | intent | Develop execution plan |
-| pts-plan-validate | 6 | procedural | Review and validate plan |
-| pts-task-execute | 7 | protocol | Execute tasks with subagents |
-| pts-qa-verify | 8 | protocol | Quality verification |
-| pts-delivery-close | 9 | procedural | Delivery and archival |
-
-### Utility Skills
-
-| Skill | Type | Description |
-|-------|------|-------------|
-| pts-norm-load | utility | Load rules context before execution |
-| pts-retrospective | utility | Conduct retrospective analysis |
-| pts-archive | utility | Archive execution artifacts |
+| pts-requirement-clarify | 3 | intent | Clarify requirements (5W1H) |
+| pts-agent-match | 4 | intent | Transparent agent selection |
+| pts-pyramid-analyze | 5 | intent | Pyramid change analysis |
+| pts-master-summarize | 6 | intent | Aggregate and summarize |
+| pts-plan-develop | 7 | intent | Develop execution plan |
+| pts-plan-validate | 8 | procedural | Review and validate plan |
+| pts-norm-load | 9 | procedural | Load rules context |
+| pts-task-execute | 10 | protocol | Execute tasks with subagents |
+| pts-qa-verify | 11 | protocol | Quality verification |
+| pts-delivery-close | 12 | procedural | Delivery and archival |
 
 ### Granularity Types
 
@@ -249,13 +244,16 @@ After installation, the target directory will contain:
 
 ```
 .claude/
-├── skills/                         # Skill definitions
+├── skills/                         # Skill definitions (12 skills)
 │   ├── pts-project-explore/
 │   ├── pts-complexity-evaluate/
-│   ├── pts-agent-claim/
-│   ├── pts-issue-aggregate/
+│   ├── pts-requirement-clarify/
+│   ├── pts-agent-match/
+│   ├── pts-pyramid-analyze/
+│   ├── pts-master-summarize/
 │   ├── pts-plan-develop/
 │   ├── pts-plan-validate/
+│   ├── pts-norm-load/
 │   ├── pts-task-execute/
 │   ├── pts-qa-verify/
 │   └── pts-delivery-close/

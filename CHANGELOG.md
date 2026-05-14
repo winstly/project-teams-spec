@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/pts:full-analysis` → Use `/pts:analyze`
 - `/pts:execution-cycle` → Use `/pts:execute`
 
+### Removed
+- **Skills removed** (not used in new workflow):
+  - `pts-agent-claim`: Task claiming, replaced by pts-agent-match
+  - `pts-issue-aggregate`: Issue aggregation, integrated into pts-requirement-clarify
+  - `pts-archive`: Archival, functionality moved to pts-delivery-close
+  - `pts-retrospective`: Retrospective analysis, moved to pts-delivery-close
+
 ### Fixed
 - Documentation consistency between English and Chinese versions
 

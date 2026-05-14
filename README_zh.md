@@ -201,27 +201,22 @@ project-teams-spec/
 
 ## Skills 概览
 
-### 核心流程 Skills（9 个阶段）
+### 核心流程 Skills（12 个阶段）
 
 | Skill | 阶段 | 粒度 | 说明 |
 |-------|------|------|------|
-| pts-project-explore | 1 | intent | 分析项目结构 |
+| pts-project-explore | 1 | intent | 扫描分析项目 |
 | pts-complexity-evaluate | 2 | procedural | 评估复杂度 |
-| pts-agent-claim | 3 | protocol | 分配任务 |
-| pts-issue-aggregate | 4 | conversational | 汇总问题 |
-| pts-plan-develop | 5 | intent | 制定执行计划 |
-| pts-plan-validate | 6 | procedural | 评审方案 |
-| pts-task-execute | 7 | protocol | 使用 subagent 执行任务 |
-| pts-qa-verify | 8 | protocol | 质量验证 |
-| pts-delivery-close | 9 | procedural | 交付归档 |
-
-### 工具类 Skills
-
-| Skill | 类型 | 说明 |
-|-------|------|------|
-| pts-norm-load | utility | 执行前加载规则上下文 |
-| pts-retrospective | utility | 进行复盘分析 |
-| pts-archive | utility | 归档执行产物 |
+| pts-requirement-clarify | 3 | intent | 需求澄清 (5W1H) |
+| pts-agent-match | 4 | intent | 透明化 Agent 选择 |
+| pts-pyramid-analyze | 5 | intent | 金字塔改动分析 |
+| pts-master-summarize | 6 | intent | 汇总并确认 |
+| pts-plan-develop | 7 | intent | 制定执行计划 |
+| pts-plan-validate | 8 | procedural | 评审方案 |
+| pts-norm-load | 9 | procedural | 加载规则上下文 |
+| pts-task-execute | 10 | protocol | 使用 subagent 执行任务 |
+| pts-qa-verify | 11 | protocol | 质量验证 |
+| pts-delivery-close | 12 | procedural | 交付归档 |
 
 ### 粒度类型
 
@@ -250,13 +245,16 @@ project-teams-spec/
 
 ```
 .claude/
-├── skills/                         # Skill 定义
+├── skills/                         # Skill 定义（12 个）
 │   ├── pts-project-explore/
 │   ├── pts-complexity-evaluate/
-│   ├── pts-agent-claim/
-│   ├── pts-issue-aggregate/
+│   ├── pts-requirement-clarify/
+│   ├── pts-agent-match/
+│   ├── pts-pyramid-analyze/
+│   ├── pts-master-summarize/
 │   ├── pts-plan-develop/
 │   ├── pts-plan-validate/
+│   ├── pts-norm-load/
 │   ├── pts-task-execute/
 │   ├── pts-qa-verify/
 │   └── pts-delivery-close/

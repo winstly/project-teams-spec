@@ -44,21 +44,22 @@ Describes the nature of the skill's work.
 
 ## `phase`
 
-Execution phase number in the overall pipeline.
+Execution phase number in the overall pipeline (1-12).
 
-| Value | Phase |
-|-------|-------|
-| `pre-execution` | Before any task execution begins |
-| `1` | Project exploration |
-| `2` | Complexity evaluation |
-| `3` | Agent task claiming and assignment |
-| `4` | Issue aggregation and clarification |
-| `5` | Execution plan development |
-| `6` | Plan validation |
-| `7` | Task execution |
-| `8` | QA verification |
-| `9` | Delivery close |
-| `post-execution` | After all tasks and delivery are complete |
+| Value | Phase | Command |
+|-------|-------|---------|
+| `1` | Project exploration | analyze |
+| `2` | Complexity evaluation | analyze |
+| `3` | Requirement clarification | analyze |
+| `4` | Agent matching | plan |
+| `5` | Pyramid analysis | plan |
+| `6` | Master summarization | plan |
+| `7` | Execution plan development | plan |
+| `8` | Plan validation | plan |
+| `9` | Norm/rule loading | execute |
+| `10` | Task execution | execute |
+| `11` | QA verification | execute |
+| `12` | Delivery close | execute |
 
 ---
 
@@ -102,15 +103,13 @@ The frontmatter block is delimited by `---` on both sides and contains all metad
 ```
 config/skills/
 ├── CONVENTIONS.md          # This file
-├── pts-archive/
-│   └── SKILL.md
-├── pts-agent-claim/
+├── pts-agent-match/
 │   └── SKILL.md
 ├── pts-complexity-evaluate/
 │   └── SKILL.md
 ├── pts-delivery-close/
 │   └── SKILL.md
-├── pts-issue-aggregate/
+├── pts-master-summarize/
 │   └── SKILL.md
 ├── pts-norm-load/
 │   └── SKILL.md
@@ -120,7 +119,14 @@ config/skills/
 │   └── SKILL.md
 ├── pts-project-explore/
 │   └── SKILL.md
+├── pts-pyramid-analyze/
+│   └── SKILL.md
 ├── pts-qa-verify/
+│   └── SKILL.md
+├── pts-requirement-clarify/
+│   └── SKILL.md
+├── pts-retrospective/
+├── pts-task-execute/
 │   └── SKILL.md
 ├── pts-retrospective/
 │   └── SKILL.md
