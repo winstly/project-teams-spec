@@ -38,13 +38,13 @@
 |------|------|
 | 工程名称 | project-teams-spec |
 | 目标 | Multi-Agent Engineering Spec System - 多Agent团队协作框架 |
-| 版本 | 1.0.0 |
+| 版本 | 1.2.0 |
 | 创建日期 | 2026-05-09 |
 | 技术栈 | TypeScript, Node.js, Claude Code |
 
 ### 核心能力
 
-- 12 个标准 Skills（规划、执行、验证、归档）
+- 12 个标准 Skills（按阶段 1-12 顺序：分析 → 规划 → 执行）
 - 5 个专业 Agent（Java、Frontend、Backend、QA、Code Reviewer）
 - 规范分层体系（Agent规范 → 项目规范 → 白皮书归档）
 - Claude Code Hook 集成
@@ -247,24 +247,32 @@ project-teams-spec/
             └── {YYYY-MM-DD}/
 ```
 
-### Skill 列表
+### Skill 列表（按阶段 1-12）
 
-| Skill | 功能 | 阶段 |
-|-------|------|------|
-| pts-project-explore | 项目探索 | Planning |
-| pts-complexity-evaluate | 复杂度评估 | Planning |
-| pts-plan-develop | 计划开发 | Planning |
-| pts-plan-validate | 计划验证 | Planning |
-| pts-agent-claim | Agent 认领 | Execution |
-| pts-task-execute | 任务执行 | Execution |
-| pts-qa-verify | QA 验证 | Verification |
-| pts-delivery-close | 交付关闭 | Delivery |
-| pts-issue-aggregate | 问题聚合 | Post-Execution |
-| pts-norm-load | 规范加载 | Pre-Execution |
-| pts-retrospective | 复盘沉淀 | Post-Execution |
-| pts-archive | 归档 | Post-Execution |
+| Skill | 功能 | 阶段 | Command |
+|-------|------|------|---------|
+| pts-project-explore | 项目扫描分析 | 1 | analyze |
+| pts-complexity-evaluate | 复杂度评估 | 2 | analyze |
+| pts-requirement-clarify | 需求澄清 | 3 | analyze |
+| pts-agent-match | Agent 匹配 | 4 | plan |
+| pts-pyramid-analyze | 金字塔分析 | 5 | plan |
+| pts-master-summarize | Main 汇总 | 6 | plan |
+| pts-plan-develop | 计划开发 | 7 | plan |
+| pts-plan-validate | 计划验证 | 8 | plan |
+| pts-norm-load | 规范加载 | 9 | execute |
+| pts-task-execute | 任务执行 | 10 | execute |
+| pts-qa-verify | QA 验证 | 11 | execute |
+| pts-delivery-close | 交付关闭 | 12 | execute |
+
+### Commands
+
+| Command | Entry | Skills |
+|---------|-------|--------|
+| analyze-cycle | /pts:analyze | project-explore → complexity-evaluate → requirement-clarify |
+| plan-cycle | /pts:plan | agent-match → pyramid-analyze → master-summarize → plan-develop → plan-validate |
+| execute-cycle | /pts:execute | norm-load → task-execute → qa-verify → delivery-close |
 
 ---
 
-*最后更新: 2026-05-12*
-*文档版本: 1.0.0*
+*最后更新: 2026-05-15*
+*文档版本: 1.2.0*

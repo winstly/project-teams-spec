@@ -8,13 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- New contribution guidelines
-- Code of conduct
-- Troubleshooting documentation
+- **Three-Phase Workflow Commands**
+  - `analyze-cycle` (`/pts:analyze`): project-explore → complexity-evaluate → requirement-clarify
+  - `plan-cycle` (`/pts:plan`): agent-match → pyramid-analyze → master-summarize → plan-develop → plan-validate
+  - `execute-cycle` (`/pts:execute`): norm-load → task-execute → qa-verify → delivery-close
+- **New Skills**: pts-agent-match, pts-pyramid-analyze, pts-master-summarize, pts-requirement-clarify
 
 ### Changed
+- **Commands reorganized**: full-analysis deprecated, execution-cycle renamed to execute-cycle
 - README.md enhanced with badges, architecture diagrams, and improved structure
 - README_zh.md synchronized with English version improvements
+- **Skill phase numbers**: Sequential 1-12 for workflow alignment
+
+### Deprecated
+- `/pts:full-analysis` → Use `/pts:analyze`
+- `/pts:execution-cycle` → Use `/pts:execute`
 
 ### Fixed
 - Documentation consistency between English and Chinese versions
