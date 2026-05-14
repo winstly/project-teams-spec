@@ -4,7 +4,7 @@ name: plan-develop
 version: 1.1.0
 granularity: intent
 type: internal
-phase: 5
+phase: 7
 description: Design execution plan architecture, break down tasks into executable units, build dependency topology, and assess risks based on task assignments and user feedback.
 triggers:
   - "create execution plan"

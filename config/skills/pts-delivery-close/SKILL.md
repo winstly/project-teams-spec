@@ -4,7 +4,7 @@ name: delivery-close
 version: 1.1.0
 granularity: procedural
 type: internal
-phase: 9
+phase: 12
 description: Finalize project delivery by collecting deliverables, generating archive manifest, documenting lessons learned, and confirming delivery completion.
 triggers:
   - "close delivery"

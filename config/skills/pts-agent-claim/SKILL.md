@@ -4,7 +4,7 @@ name: agent-claim
 version: 1.1.0
 granularity: protocol
 type: agent-subprocess
-phase: 3
+
 description: Assign tasks to appropriate Agents based on complexity evaluation, collect confirmations, and aggregate clarification requests.
 triggers:
   - "assign tasks"

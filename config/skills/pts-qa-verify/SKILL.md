@@ -4,7 +4,7 @@ name: qa-verify
 version: 1.1.0
 granularity: protocol
 type: agent-subprocess
-phase: 8
+phase: 11
 description: Verify execution results against quality standards, run tests, check coverage, and generate verification reports. Handle failures and guide fixes.
 triggers:
   - "verify quality"

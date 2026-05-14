@@ -4,7 +4,7 @@ name: plan-validate
 version: 1.1.0
 granularity: procedural
 type: internal
-phase: 6
+phase: 8
 description: Validate execution plan feasibility, completeness, dependency topology, and risk assessment. Ensure plan meets all quality standards before proceeding to execution.
 triggers:
   - "validate plan"

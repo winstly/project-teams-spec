@@ -4,7 +4,7 @@ name: task-execute
 version: 1.1.0
 granularity: protocol
 type: agent-subprocess
-phase: 7
+phase: 10
 description: Coordinate multiple Agents to execute tasks according to plan, manage task scheduling, monitor execution progress, handle conflicts, and aggregate results.
 triggers:
   - "execute tasks"
