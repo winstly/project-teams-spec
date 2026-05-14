@@ -28,7 +28,7 @@ A multi-agent engineering specification execution system. Provides standardized 
 - **Milestone-Based Delivery**: Iterative delivery with user checkpoints for large/complex projects
 - **Multi-Agent Collaboration**: Supports Java, Frontend, Backend, QA, Code Reviewer and other Agents
 - **Multi-Tool Support**: Compatible with Claude Code, OpenCode, Trae and other CLI tools
-- **Command Generation**: Auto-generates namespaced commands (e.g., `/pts:full-analysis`)
+- **Command Generation**: Auto-generates namespaced commands (e.g., `/pts:analyze`)
 - **Interactive Installation**: Welcome screen + tool multi-select, ready to use out of the box
 - **Flexible Granularity**: INSTRUCTIONS support intent/procedural/protocol/conversational granularity
 
@@ -186,17 +186,17 @@ Commands are auto-generated via the `src/core/command-generation/` module, suppo
 
 | Tool | Path | Invocation |
 |------|------|------------|
-| Claude Code | `.claude/commands/pts/<id>.md` | `/pts:full-analysis` |
-| OpenCode | `.opencode/commands/pts-<id>.md` | `/pts-full-analysis` |
-| Trae | `.trae/commands/pts-<id>.md` | `/pts-full-analysis` |
+| Claude Code | `.claude/commands/pts/<id>.md` | `/pts:analyze` |
+| OpenCode | `.opencode/commands/pts-<id>.md` | `/pts-analyze` |
+| Trae | `.trae/commands/pts-<id>.md` | `/pts-analyze` |
 
 ### Available Commands
 
 | Command | Description |
 |----------|-------------|
-| `/pts:full-analysis` | Complete project analysis workflow |
-| `/pts:plan-cycle` | Planning cycle: task claiming, plan validation |
-| `/pts:execution-cycle` | Execution cycle: task execution, delivery archival |
+| `/pts:analyze` | Project analysis and requirement clarification |
+| `/pts:plan` | Agent matching and execution plan |
+| `/pts:execute` | Task execution and delivery |
 
 ## Skills Overview
 
@@ -277,9 +277,9 @@ After installation, the target directory will contain:
 │   └── on-task-completed.sh
 ├── commands/
 │   └── pts/                       # Command definitions (with namespace)
-│       ├── full-analysis.md
+│       ├── analyze-cycle.md
 │       ├── plan-cycle.md
-│       └── execution-cycle.md
+│       └── execute-cycle.md
 └── .project-teams-spec-*-version  # Version tracking file
 ```
 

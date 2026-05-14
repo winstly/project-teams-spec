@@ -28,7 +28,7 @@
 - **里程碑驱动交付**: 大型/复杂项目支持用户检查点迭代交付
 - **多 Agent 协作**: 支持 Java、Frontend、Backend、QA、Code Reviewer 等 Agent
 - **多工具支持**: 兼容 Claude Code、OpenCode、Trae 等 CLI 工具
-- **命令生成**: 自动生成带命名空间的命令（如 `/pts:full-analysis`）
+- **命令生成**: 自动生成带命名空间的命令（如 `/pts:analyze`）
 - **交互式安装**: 欢迎页面 + 工具多选，开箱即用
 - **灵活粒度**: INSTRUCTIONS 支持 intent / procedural / protocol / conversational 四种粒度
 
@@ -187,17 +187,17 @@ project-teams-spec/
 
 | 工具 | 路径 | 调用方式 |
 |------|------|---------|
-| Claude Code | `.claude/commands/pts/<id>.md` | `/pts:full-analysis` |
-| OpenCode | `.opencode/commands/pts-<id>.md` | `/pts-full-analysis` |
-| Trae | `.trae/commands/pts-<id>.md` | `/pts-full-analysis` |
+| Claude Code | `.claude/commands/pts/<id>.md` | `/pts:analyze` |
+| OpenCode | `.opencode/commands/pts-<id>.md` | `/pts-analyze` |
+| Trae | `.trae/commands/pts-<id>.md` | `/pts-analyze` |
 
 ### 可用命令
 
 | 命令 | 说明 |
 |------|------|
-| `/pts:full-analysis` | 完整项目分析流程 |
-| `/pts:plan-cycle` | 规划周期：任务领取、方案确认 |
-| `/pts:execution-cycle` | 执行周期：任务执行、交付归档 |
+| `/pts:analyze` | 项目分析和需求澄清 |
+| `/pts:plan` | Agent 匹配和执行计划 |
+| `/pts:execute` | 任务执行和交付 |
 
 ## Skills 概览
 
@@ -278,9 +278,9 @@ project-teams-spec/
 │   └── on-task-completed.sh
 ├── commands/
 │   └── pts/                       # 命令定义（带命名空间）
-│       ├── full-analysis.md
+│       ├── analyze-cycle.md
 │       ├── plan-cycle.md
-│       └── execution-cycle.md
+│       └── execute-cycle.md
 └── .project-teams-spec-*-version  # 版本追踪文件
 ```
 

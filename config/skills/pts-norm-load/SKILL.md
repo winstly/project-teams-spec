@@ -4,7 +4,7 @@ name: norm-load
 version: 1.1.0
 granularity: protocol
 type: internal
-phase: pre-execution
+phase: 9
 description: Load project rules and agent-specific rules to build a comprehensive context for agent execution. Ensures strict adherence to project and agent-specific coding standards.
 triggers:
   - "load rules"

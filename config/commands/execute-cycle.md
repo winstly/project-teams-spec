@@ -1,12 +1,13 @@
-# Command: execution-cycle
+# Command: execute-cycle
 
 ## Metadata
-name: execution-cycle
-description: Execution cycle - complete workflow from task execution to delivery archival
+name: execute-cycle
+description: Task execution, QA verification, and delivery workflow
 version: 1.0.0
 
 ## Skill Chain
 skills:
+  - pts-norm-load
   - pts-task-execute
   - pts-qa-verify
   - pts-delivery-close
@@ -15,30 +16,38 @@ skills:
 checkpoint:
   mode: necessary-only
   before:
+    - pts-task-execute
     - pts-qa-verify
-    - pts-delivery-close
   require: user-confirm
 
 ## Branch Conditions
 branches:
   on-success:
     path: complete
-    message: "Execution cycle complete. Deliverables archived, lessons learned recorded."
+    message: "Execution complete. Deliverables archived, lessons learned recorded."
   on-fail:
-    path: notify-master
-    message: "QA verification failed. Fix and re-execute pts-task-execute."
+    path: task-execute
+    message: "QA verification failed. Return to task execution for fixes."
 
 ## Execution Notes
 This command executes the complete execution cycle:
-1. Agents execute assigned tasks (pts-task-execute)
-2. QA Agent verifies execution results (pts-qa-verify)
-3. On QA failure, rollback to pts-task-execute for fixes
-4. After QA passes, archive and deliver (pts-delivery-close)
+1. Load rules context for executors (pts-norm-load)
+2. Dispatch subagents to execute tasks (pts-task-execute)
+3. QA Agent verifies execution results (pts-qa-verify)
+4. Archive and deliver (pts-delivery-close)
+
+On QA failure:
+- Rollback to pts-task-execute for fixes
+- Re-run QA verification after fixes
 
 Preconditions:
 - pts-plan-validate has passed user confirmation
 - Execution plan is finalized
 
+Entry: /pts:execute
+
 Hook configuration:
-- After pts-task-execute completes, auto-trigger pts-qa-verify (on-execute-complete)
-- On pts-qa-verify failure, notify Master and user (on-qa-fail)
+- After pts-norm-load completes, auto-trigger pts-task-execute
+- After pts-task-execute completes, auto-trigger pts-qa-verify
+- On pts-qa-verify failure, notify Master and user
+- After pts-qa-verify passes, auto-trigger pts-delivery-close
