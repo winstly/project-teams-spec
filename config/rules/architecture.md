@@ -1,119 +1,123 @@
-# Architecture Specification
+# General Coding Standards
 
-This document defines the architecture specification for the project-teams-spec system, ensuring consistency and maintainability of the multi-Agent system.
+This document defines the general coding standards for the project-teams-spec system, applicable to all code and configuration files.
 
-## Architecture Principles
+## Code Style
 
-### 1. Clear Layering
+### Formatting
+- Indentation: 2 spaces (config files), 4 spaces (code)
+- Line length: Maximum 120 characters
+- Line endings: Unix style (LF)
+
+### Naming
+- File names: kebab-case (e.g., `my-file.md`)
+- Config keys: kebab-case (e.g., `my-key`)
+- Function names: lowerCamelCase (e.g., `myFunction`)
+- Class names: UpperCamelCase (e.g., `MyClass`)
+- Constants: UPPER_SNAKE_CASE (e.g., `MY_CONSTANT`)
+
+### Comments
+- Use `#` as comment symbol (Markdown files)
+- Use `//` as comment symbol (code files)
+- Keep comments concise, explain "why" not "what"
+
+## Markdown Standards
+
+### Heading Levels
 ```
-┌─────────────────────────────────────┐
-│           Master (CLI Tool)          │
-├─────────────────────────────────────┤
-│              Skills                  │
-├─────────────────────────────────────┤
-│              Agents                  │
-├─────────────────────────────────────┤
-│        Rules / Hooks / Commands       │
-└─────────────────────────────────────┘
-```
-
-### 2. Separation of Concerns
-- **Master**: Coordinates workflow, manages overall progress
-- **Skills**: Define standardized processes, describe task steps
-- **Agents**: Execute specific tasks, provide domain knowledge
-- **Rules**: Constrain behavior, ensure quality
-
-### 3. Loose Coupling
-- Skills communicate through file state
-- Agents pass results through TaskResult
-- Rely on tool native capabilities, avoid hardcoding
-
-## Directory Structure
-
-```
-project-teams-spec/
-├── config/
-│   ├── skills/          # 9 standard Skills
-│   ├── agents/          # 5 Agent definitions
-│   │   ├── java-agent/
-│   │   ├── frontend-agent/
-│   │   ├── backend-agent/
-│   │   ├── qa-agent/
-│   │   └── code-reviewer/
-│   ├── rules/           # Common rule sets
-│   ├── hooks/           # Claude Code hooks
-│   └── commands/        # Command definitions
-├── src/
-│   └── install.ts       # Installation script
-└── docs/
-    └── 2026-05-09-multi-agent-spec-design.md
+# H1 - Document Title
+## H2 - Major Sections
+### H3 - Subsections
+#### H4 - Details
 ```
 
-## Agent Collaboration Pattern
+### Lists
+- Use `-` for unordered list markers
+- Use `1.` for ordered list markers (only when order matters)
+- Nesting should not exceed 3 levels
 
-```
-Master (CLI)
-    │
-    ├── project-explore ──→ Analyze project structure
-    │
-    ├── complexity-evaluate ──→ Evaluate complexity
-    │
-    ├── agent-claim ──→ Assign tasks to Sub-Agents
-    │
-    ├── task-execute ──→ Sub-Agents execute tasks
-    │       │
-    │       ├── java-agent
-    │       ├── frontend-agent
-    │       └── qa-agent
-    │
-    ├── qa-verify ──→ Verify quality
-    │
-    └── delivery-close ──→ Archive and deliver
-```
+### Code Blocks
+- Language markers: ` ```yaml ``` ` ` ```typescript ``` `
+- Include file name and line number comments
 
-## File State Management
+## YAML Standards
 
-### State File Location
-```
-.project-teams-spec/
-├── SPEC.md                 # Project specification
-├── COMPLEXITY.md           # Complexity report
-├── projects/
-│   └── <project>/
-│       ├── plan.md         # Execution plan
-│       ├── plan-revised.md # Revised plan
-│       └── tasks/          # Task files
-├── verification.md          # Verification report
-└── archive-manifest.md     # Archive manifest
+### Basic Format
+```yaml
+key: value
+nested:
+  child: value
+list:
+  - item1
+  - item2
 ```
 
-### State Transition
+### Rules
+- Use 2-space indentation
+- Do not use tabs
+- Key-value pairs separated by `:`
+- List items start with `-`
+
+## File Organization
+
+### File Naming
+- Config files: `kebab-case.yaml`
+- Documentation files: `kebab-case.md`
+- Script files: `kebab-case.ts`
+
+### Directory Structure
 ```
-pre-planning → planning → executing → verifying → closed
+config/
+├── skills/          # One directory per Skill
+├── agents/          # One directory per Agent
+├── rules/           # Rule files
+├── hooks/           # Hook scripts
+└── commands/        # Command definitions
+
+src/
+└── *.ts            # TypeScript source files
 ```
 
-## Skill Types
+## Git Standards
 
-### internal
-- Master executes directly
-- No Sub-Agent participation required
-- Examples: project-explore, complexity-evaluate
+### Commit Messages
+```
+type(scope): description
 
-### agent-subprocess
-- Master delegates to Sub-Agent
-- Sub-Agent returns results after completion
-- Examples: task-execute, qa-verify
+feat(skills): add project-explore skill
+fix(agents): correct java-agent naming
+docs(rules): update coding standards
+```
 
-## Key Design Decisions
+### Branch Naming
+```
+feature/<skill-name>
+fix/<issue-description>
+docs/<topic>
+```
 
-### Decision 1: Master = CLI Tool
-No independent Master process is implemented. Instead, it is injected into the CLI tool.
+## Error Handling
 
-### Decision 2: Sub-Agent Communication Relies on Tool Native Capabilities
-No RPC is implemented. Coordination is done through the tool's TUI, configuration, or SDK.
+### Exception Classification
+- **Critical**: Must be fixed, cannot continue otherwise
+- **High**: Recommended fix, may affect functionality
+- **Medium**: Fix as needed, does not affect main flow
+- **Low**: Minor issue, acceptable
 
-### Decision 3: File State as Inter-Agent Communication Medium
-State is passed through YAML files in the `.project-teams-spec/` directory.
+### Handling Process
+1. Identify error type
+2. Record error details
+3. Generate fix suggestions
+4. Notify relevant parties
 
-### Decision 4: Hooks Only Support Claude Code (Phase 1)
-Hook mechanisms for other tools will be implemented after research in Phase 2.
+## Security Standards
+
+### Prohibited
+- Do not hardcode secrets in code
+- Do not print sensitive information in logs
+- Do not expose system architecture in comments
+
+### Requirements
+- All inputs must be validated
+- All outputs must be sanitized
+- All operations must be logged

@@ -200,7 +200,7 @@ hooks:
   on-complete:
     - trigger: on-complexity-complete
       action: auto-trigger-next-skill
-      next_skill: agent-claim
+      next_skill: agent-match
   on-level-determined:
     - trigger: on-level-determined
       action: notify-master

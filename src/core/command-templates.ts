@@ -12,32 +12,34 @@ import type { CommandContent } from './command-generation/types.js';
  */
 export function getCommandContents(): CommandContent[] {
   return [
-    getFullAnalysisCommand(),
+    getAnalyzeCycleCommand(),
     getPlanCycleCommand(),
-    getExecutionCycleCommand(),
+    getExecuteCycleCommand(),
   ];
 }
 
-function getFullAnalysisCommand(): CommandContent {
+function getAnalyzeCycleCommand(): CommandContent {
   return {
-    id: 'full-analysis',
-    name: 'full-analysis',
-    description: 'Complete project analysis workflow - explore, evaluate complexity, and generate SPEC',
+    id: 'analyze-cycle',
+    name: 'analyze-cycle',
+    description: 'Project analysis workflow - explore structure, evaluate complexity, clarify requirements',
     category: 'Workflow',
-    tags: ['analysis', 'complexity', 'exploration', 'spec', 'setup'],
-    body: `# Full Analysis
+    tags: ['analysis', 'complexity', 'exploration', 'requirements'],
+    body: `# Analyze Cycle
 
 Execute the complete project analysis workflow to understand your codebase and prepare for development.
 
 ## Skills Chain
 
 1. **pts-project-explore** - Analyze project structure, tech stack, and module dependencies
-2. **pts-complexity-evaluate** - Evaluate project complexity (S/M/L/XL) and assign agents
+2. **pts-complexity-evaluate** - Evaluate project complexity (S/M/L/XL) and delivery strategy
+3. **pts-requirement-clarify** - Clarify ambiguous requirements and gather user input
 
 ## Checkpoint Strategy
 
-- Before complexity-evaluate: User confirmation required
-- After completion: Review generated SPEC.md and COMPLEXITY.md
+- After project-explore: Display project summary
+- After complexity-evaluate: User confirmation required
+- After requirement-clarify: Present consolidated requirements
 
 ## Execution Flow
 
@@ -49,14 +51,15 @@ Execute the complete project analysis workflow to understand your codebase and p
 
 2. **Complexity Evaluation**
    - Assess code volume, test coverage, and documentation
-   - Determine complexity class: S (< 1K lines), M (1-10K), L (10-50K), XL (> 50K)
-   - Identify potential risks and technical debt
+   - Determine complexity class: S (< 1K), M (1-10K), L (10-50K), XL (> 50K)
+   - Generate delivery strategy based on complexity
    - Generate \`.project-teams-spec/COMPLEXITY.md\`
 
-3. **Agent Assignment Plan**
-   - Match project characteristics to available agents
-   - Generate resource allocation recommendations
-   - Create initial task breakdown
+3. **Requirement Clarification**
+   - Analyze SPEC.md and identify ambiguous requirements
+   - Generate clarification questions
+   - Present to user and collect answers
+   - Update requirements with clarifications
 
 ## Output
 
@@ -64,29 +67,20 @@ Execute the complete project analysis workflow to understand your codebase and p
 |------|-------------|
 | \`.project-teams-spec/SPEC.md\` | Project specification document |
 | \`.project-teams-spec/COMPLEXITY.md\` | Complexity evaluation report |
-| \`.project-teams-spec/projects/[name]/\` | Project-specific data |
+| \`.project-teams-spec/projects/[name]/exploration.md\` | Project structure |
+
+## Usage
+
+\`\`\`
+/pts:analyze                    # Run full analysis cycle
+/pts:analyze --skip-explore     # Skip exploration if already done
+/pts:analyze --re-evaluate      # Re-evaluate complexity
+\`\`\`
 
 ## Next Steps
 
-After completion, you can:
-
-- **Confirm results**: Review and validate SPEC.md and COMPLEXITY.md
-- **Plan cycle**: Run \`/pts:plan-cycle\` for detailed task planning
-- **Direct execution**: Run \`/pts:execution-cycle\` for implementation (if plan is ready)
-
-## Usage Examples
-
-\`\`\`
-/pts:full-analysis                    # Run full analysis
-/pts:full-analysis --skip-explore    # Skip exploration if already done
-/pts:full-analysis --re-evaluate     # Re-evaluate complexity
-\`\`\`
-
-## Exit Criteria
-
-- SPEC.md exists and is validated
-- COMPLEXITY.md contains accurate complexity class
-- All risks are documented
+After completion:
+- Run \`/pts:plan\` for task planning
 `,
   };
 }
@@ -95,7 +89,7 @@ function getPlanCycleCommand(): CommandContent {
   return {
     id: 'plan-cycle',
     name: 'plan-cycle',
-    description: 'Planning cycle - from task claiming to plan confirmation with multi-agent coordination',
+    description: 'Planning cycle - from agent matching to plan validation with multi-agent coordination',
     category: 'Workflow',
     tags: ['planning', 'agents', 'tasks', 'coordination', 'estimation'],
     body: `# Plan Cycle
@@ -104,15 +98,16 @@ Execute the complete planning workflow with autonomous agent coordination.
 
 ## Skills Chain
 
-1. **pts-agent-claim** - Agents claim tasks based on expertise
-2. **pts-issue-aggregate** - Aggregate clarification questions from agents
-3. **pts-plan-develop** - Generate detailed implementation plan
-4. **pts-plan-validate** - Review and validate plan with user
+1. **pts-agent-match** - Match agents to tasks based on expertise and availability
+2. **pts-pyramid-analyze** - Analyze strategy and tactics layer by layer
+3. **pts-master-summarize** - Synthesize master perspective with resource allocation
+4. **pts-plan-develop** - Generate detailed implementation plan
+5. **pts-plan-validate** - Review and validate plan with user
 
 ## Checkpoint Strategy
 
-- After agent-claim: Display task ownership matrix
-- After issue-aggregate: Present consolidated questions
+- After agent-match: Display task ownership matrix
+- After pyramid-analyze: Present strategic layers
 - Before plan-validate: User confirmation required
 
 ## Prerequisites
@@ -123,39 +118,34 @@ Execute the complete planning workflow with autonomous agent coordination.
 
 ## Execution Flow
 
-### Phase 1: Task Claiming
+### Phase 1: Agent Matching
 
 1. Analyze tasks from SPEC.md and complexity evaluation
-2. Each agent claims tasks matching their expertise:
+2. Match each task to best-fit agent:
    - **Java Agent**: Backend services, JVM optimization, Spring ecosystems
    - **Frontend Agent**: UI components, React/Vue, CSS, responsive design
    - **Backend Agent**: API design, database, microservices
    - **QA Agent**: Test strategy, verification criteria
    - **Code Reviewer**: Quality gates, coding standards
 
-3. Generate task ownership matrix
+3. Generate task ownership matrix with confidence scores
 
-### Phase 2: Issue Aggregation
+### Phase 2: Pyramid Analysis
 
-1. Collect clarification questions from all agents
-2. Categorize issues by type:
-   - **Technical**: Architecture decisions, dependencies
-   - **Scope**: Feature boundaries, out-of-scope items
-   - **Resource**: Time constraints, team availability
-3. Present consolidated view to user
-4. Wait for user responses before proceeding
+1. **Strategy Layer** (Why): Business goals and success criteria
+2. **Tactics Layer** (What): Feature breakdown and task priorities
+3. **Combat Layer** (How): Implementation details and technical approach
 
-### Phase 3: Plan Development
+4. Present pyramid summary to user
 
-1. Generate implementation plan based on:
-   - Task breakdown from complexity evaluation
-   - Agent expertise mapping
-   - User clarifications
+### Phase 3: Master Summarize
+
+1. Synthesize all agent inputs into unified plan
 2. Define:
    - Task dependencies and critical path
    - Integration points between agents
    - Quality gates and checkpoints
-3. Estimate effort and timeline
+3. Generate resource allocation recommendations
 
 ### Phase 4: Plan Validation
 
@@ -171,50 +161,51 @@ Execute the complete planning workflow with autonomous agent coordination.
 | Artifact | Location |
 |----------|----------|
 | Task ownership | \`.project-teams-spec/projects/[name]/tasks/ownership.json\` |
-| Clarifications | \`.project-teams-spec/projects/[name]/clarifications.md\` |
+| Pyramid analysis | \`.project-teams-spec/projects/[name]/pyramid.md\` |
 | Execution plan | \`.project-teams-spec/projects/[name]/plan.md\` |
 | Task list | \`.project-teams-spec/projects/[name]/tasks/*.md\` |
 
-## Usage Examples
+## Usage
 
 \`\`\`
-/pts:plan-cycle                 # Run full planning cycle
-/pts:plan-cycle --skip-claim    # Use pre-assigned tasks
-/pts:plan-cycle --quick        # Minimal clarification phase
+/pts:plan                 # Run full planning cycle
+/pts:plan --skip-match    # Use pre-assigned tasks
+/pts:plan --quick         # Minimal analysis
 \`\`\`
 
 ## Next Steps
 
 After plan validation:
-- Run \`/pts:execution-cycle\` for implementation
+- Run \`/pts:execute\` for implementation
 - Or review plan.md before proceeding
 
 ## Success Criteria
 
-- All tasks have assigned owners
-- All clarifications are resolved
+- All tasks have assigned owners with confidence scores
+- Pyramid analysis covers all three layers
 - Plan.md is user-approved
 - Dependencies are clearly mapped
 `,
   };
 }
 
-function getExecutionCycleCommand(): CommandContent {
+function getExecuteCycleCommand(): CommandContent {
   return {
-    id: 'execution-cycle',
-    name: 'execution-cycle',
-    description: 'Execution cycle - task execution, QA verification, and delivery closure',
+    id: 'execute-cycle',
+    name: 'execute-cycle',
+    description: 'Execution cycle - task execution, QA verification, and delivery closure with iterative milestones',
     category: 'Workflow',
-    tags: ['execution', 'qa', 'delivery', 'verification', 'closure'],
-    body: `# Execution Cycle
+    tags: ['execution', 'qa', 'delivery', 'verification', 'milestone'],
+    body: `# Execute Cycle
 
-Execute the complete implementation workflow with continuous QA verification.
+Execute the complete implementation workflow with continuous QA verification and milestone-based iterative delivery.
 
 ## Skills Chain
 
-1. **pts-task-execute** - Execute assigned tasks with progress tracking
-2. **pts-qa-verify** - Verify execution results against criteria
-3. **pts-delivery-close** - Archive deliverables and close delivery
+1. **pts-norm-load** - Load project norms and context
+2. **pts-task-execute** - Execute assigned tasks with sub-agent dispatch
+3. **pts-qa-verify** - Verify execution results against acceptance criteria
+4. **pts-delivery-close** - Archive deliverables and close delivery
 
 ## Checkpoint Strategy
 
@@ -228,167 +219,58 @@ Execute the complete implementation workflow with continuous QA verification.
 - plan-validate has passed user confirmation
 - Execution plan (plan.md) is finalized
 - All tasks have assigned owners
-- Clarifications are resolved
+- Pyramid analysis is complete
 
 ## Execution Flow
 
 ### Phase 1: Task Execution (Milestone-Based Iterative Delivery)
 
-**For large/complex projects, use milestone-based iterative delivery instead of executing all tasks at once.**
+**For large/complex projects, use milestone-based iterative delivery.**
 
 #### Step 1: Load Milestones from Plan
 
 1. Load \`plan.md\` to identify milestones
-2. Parse milestone definitions (each milestone contains a group of related tasks)
-3. If no milestones defined, treat entire task set as single milestone
+2. Parse milestone definitions
+3. If no milestones, treat entire task set as single milestone
 
 #### Step 2: Execute Tasks by Milestone
 
-**For EACH milestone (in dependency order):**
-
-\`\`\`
-┌─────────────────────────────────────────────────────────────┐
-│ MILESTONE: {milestone-name}                                 │
-│ Tasks: {task-count} | Estimated: {duration}                │
-│ Dependencies: {other-milestone-ids}                        │
-└─────────────────────────────────────────────────────────────┘
-\`\`\`
+**For EACH milestone:**
 
 1. **Check milestone dependencies**
-   - Verify all prerequisite milestones are completed
-   - If not ready, skip to next eligible milestone
-
-2. **Execute tasks in this milestone**
-   For EACH task, you MUST call the Agent tool:
-
-   \`\`\`typescript
-   // 1. Load task details
-   const taskDetail = await readFile(\`.project-teams-spec/projects/\<project\>/tasks/\<task-id\>.md\`);
-
-   // 2. Load agent config
-   const agentConfig = await readFile(\`.claude/agents/\<agent-name\>/agent.md\`);
-
-   // 3. Load project context
-   const projectContext = await readFile(\`.project-teams-spec/SPEC.md\`);
-
-   // 4. Load rules
-   const rules = await readFile(\`.claude/rules/coding-standards.md\`);
-
-   // 5. Build prompt with milestone context
-   const prompt = buildTaskPrompt(agentConfig, taskDetail, projectContext, rules);
-
-   // 6. DISPATCH USING AGENT TOOL - THIS IS REQUIRED
-   const result = await Agent({
-     subagent_type: agentConfig.type || "general-purpose",
-     prompt: prompt,
-     description: "[Milestone: <milestone-name>] Execute task: <task-id>"
-   });
-   \`\`\`
-
+2. **Execute tasks in this milestone** (use Agent tool)
 3. **Track milestone progress**
-   - Log completion status per task
-   - Report to user: "Milestone X/Y completed"
 
 #### Step 3: Milestone Checkpoint (REQUIRED)
 
-**After completing each milestone:**
-
-\`\`\`
-╔═══════════════════════════════════════════════════════════════╗
-║  MILESTONE CHECKPOINT                                        ║
-║  ─────────────────────────────────────────────────────────── ║
-║  Milestone: {name}                                           ║
-║  Status: {completed|partial|failed}                        ║
-║  Tasks completed: {n}/{total}                               ║
-║  Artifacts: {list}                                          ║
-║                                                               ║
-║  Next:                                                       ║
-║  [ ] Continue to next milestone                              ║
-║  [ ] Review and verify artifacts                             ║
-║  [ ] Request changes before proceeding                       ║
-╚═══════════════════════════════════════════════════════════════╝
-\`\`\`
-
-**WAIT for user confirmation before proceeding to next milestone.**
-
-4. **Handle integration points**
-   - Coordinate cross-milestone tasks
-   - Verify interface compatibility
+**After each milestone, WAIT for user confirmation.**
 
 ### Phase 2: QA Verification (Per Milestone)
 
-**For iterative delivery, verify each milestone after execution.**
-
-1. **Milestone verification checklist**
-   - Review artifacts produced by milestone
-   - Execute acceptance criteria for each task
-   - Generate verification report per milestone
-
-2. **Run per-task verification**
-   - Execute \`pts-qa-verify\` for each completed task
-   - Check against task acceptance criteria
-   - Log verification results
-
-3. **Handle verification failures**
-   - If QA fails: Return to task-execute for affected tasks
-   - Document failure reasons
-   - Plan corrective actions
-   - **Re-verify after fixes before proceeding**
-
-4. **Milestone sign-off**
-   - All tasks in milestone pass QA
-   - User approves milestone delivery
-   - Mark milestone as "verified"
+1. **Run verification for each completed task**
+2. **Handle failures**: Return to task-execute for fixes
+3. **Milestone sign-off**: User approves after all tasks pass
 
 ### Phase 3: Delivery Closure (Per Milestone)
 
-**For iterative delivery, deliver each milestone separately.**
-
-1. **Milestone delivery**
-   - Generate milestone delivery summary
-   - Archive artifacts to \`.project-teams-spec/deliveries/\<milestone-id\>/\`
-   - Update project progress tracker
-
-2. **Update project knowledge**
-   - Write LESSONS_LEARNED.md for this milestone
-   - Record successful patterns
-   - Note any issues for future milestones
-
-3. **Clean up (per milestone)**
-   - Remove temporary files from milestone
-   - Archive milestone work branches
-   - Update milestone status
-
-4. **Continue or Finalize**
-   - If more milestones pending: return to Phase 1 for next milestone
-   - If all milestones delivered: complete final closure
+1. **Generate delivery summary**
+2. **Update LESSONS_LEARNED.md** from experience
+3. **Archive artifacts**
 
 ## Output
 
 | Artifact | Location |
 |----------|----------|
-| Milestone results | \`.project-teams-spec/deliveries/\<milestone-id\>/results.json\` |
-| Milestone QA report | \`.project-teams-spec/deliveries/\<milestone-id\>/qa-report.md\` |
-| Milestone archive | \`.project-teams-spec/deliveries/\<milestone-id\>/\` |
-| Overall delivery | \`.project-teams-spec/deliveries/final/\` |
+| Milestone results | \`.project-teams-spec/deliveries/<milestone-id>/results.json\` |
+| QA report | \`.project-teams-spec/deliveries/<milestone-id>/qa-report.md\` |
+| Archive | \`.project-teams-spec/deliveries/<milestone-id>/\` |
 
-## Hooks Configuration
-
-| Event | Action |
-|-------|--------|
-| milestone-complete | Prompt user for confirmation before next milestone |
-| task-execute complete | Auto-trigger qa-verify for task |
-| qa-verify failure | Notify Master + user, return to execution |
-| delivery-close start | Generate milestone summary |
-
-## Usage Examples
+## Usage
 
 \`\`\`
-/pts:execution-cycle                    # Run milestone-based execution
-/pts:execution-cycle --milestone m1    # Execute specific milestone only
-/pts:execution-cycle --skip-milestone-checkpoint  # Auto-proceed (testing only)
-/pts:execution-cycle --skip-qa         # Skip verification (for testing)
-/pts:execution-cycle --parallel        # Enable parallel task execution
+/pts:execute                    # Run milestone-based execution
+/pts:execute --milestone m1     # Execute specific milestone
+/pts:execute --skip-qa          # Skip verification (testing)
 \`\`\`
 
 ## Success Criteria
@@ -396,14 +278,6 @@ Execute the complete implementation workflow with continuous QA verification.
 - All milestones executed successfully
 - QA verification passes for each milestone
 - User approves each milestone delivery
-- All milestones archived
-
-## Error Handling
-
-- **Task failure**: Return to execution for affected tasks in milestone
-- **Milestone failure**: Pause and await user decision
-- **QA failure**: Fix affected tasks, re-verify before proceeding
-- **Integration failure**: Escalate to Master agent
 `,
   };
 }

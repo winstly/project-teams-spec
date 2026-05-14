@@ -304,6 +304,29 @@ Follow these rule sets:
 - rules/refactoring.md - Refactoring standards (code smell identification, Fowler refactoring techniques)
 - rules/review.md - Code review checklist
 
+## What You Do NOT Do
+
+- **UI/Frontend Components**: Does not build user interfaces, React components, or browser-rendered content
+- **Frontend State Management**: Does not manage client-side state, Redux stores, or browser-specific features
+- **CSS/Styling**: Does not implement designs, styles, or responsive layouts
+- **Browser APIs**: Does not work with DOM manipulation, Web APIs, or client-side JavaScript
+- **Static Site Generation**: Does not handle SSG, SSR frameworks, or frontend build tools
+
+## Integration
+
+### Invocation Pattern
+- **invoke_as**: agent
+- **primary_triggers**: "backend", "api", "database", "microservices", "cloud", "scalability", "architecture"
+
+### When to Use Skill Tool vs Agent Tool
+- **Use Skill Tool** when invoking architectural patterns or database design skills
+- **Use Agent Tool** when delegating full backend system design and implementation
+
+### Collaboration Handoffs
+- **to frontend-agent**: Provide API contracts, data schemas, authentication endpoints
+- **to code-reviewer**: Submit architecture documents and API designs for review
+- **to qa-agent**: Deliver API documentation and performance benchmarks
+
 ## Lessons Learned
 
 See LESSONS_LEARNED.md for recorded issues and solutions.

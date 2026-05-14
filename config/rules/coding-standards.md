@@ -1,123 +1,119 @@
-# General Coding Standards
+# Architecture Specification
 
-This document defines the general coding standards for the project-teams-spec system, applicable to all code and configuration files.
+This document defines the architecture specification for the project-teams-spec system, ensuring consistency and maintainability of the multi-Agent system.
 
-## Code Style
+## Architecture Principles
 
-### Formatting
-- Indentation: 2 spaces (config files), 4 spaces (code)
-- Line length: Maximum 120 characters
-- Line endings: Unix style (LF)
-
-### Naming
-- File names: kebab-case (e.g., `my-file.md`)
-- Config keys: kebab-case (e.g., `my-key`)
-- Function names: lowerCamelCase (e.g., `myFunction`)
-- Class names: UpperCamelCase (e.g., `MyClass`)
-- Constants: UPPER_SNAKE_CASE (e.g., `MY_CONSTANT`)
-
-### Comments
-- Use `#` as comment symbol (Markdown files)
-- Use `//` as comment symbol (code files)
-- Keep comments concise, explain "why" not "what"
-
-## Markdown Standards
-
-### Heading Levels
+### 1. Clear Layering
 ```
-# H1 - Document Title
-## H2 - Major Sections
-### H3 - Subsections
-#### H4 - Details
+┌─────────────────────────────────────┐
+│           Master (CLI Tool)          │
+├─────────────────────────────────────┤
+│              Skills                  │
+├─────────────────────────────────────┤
+│              Agents                  │
+├─────────────────────────────────────┤
+│        Rules / Hooks / Commands       │
+└─────────────────────────────────────┘
 ```
 
-### Lists
-- Use `-` for unordered list markers
-- Use `1.` for ordered list markers (only when order matters)
-- Nesting should not exceed 3 levels
+### 2. Separation of Concerns
+- **Master**: Coordinates workflow, manages overall progress
+- **Skills**: Define standardized processes, describe task steps
+- **Agents**: Execute specific tasks, provide domain knowledge
+- **Rules**: Constrain behavior, ensure quality
 
-### Code Blocks
-- Language markers: ` ```yaml ``` ` ` ```typescript ``` `
-- Include file name and line number comments
+### 3. Loose Coupling
+- Skills communicate through file state
+- Agents pass results through TaskResult
+- Rely on tool native capabilities, avoid hardcoding
 
-## YAML Standards
+## Directory Structure
 
-### Basic Format
-```yaml
-key: value
-nested:
-  child: value
-list:
-  - item1
-  - item2
+```
+project-teams-spec/
+├── config/
+│   ├── skills/          # 9 standard Skills
+│   ├── agents/          # 5 Agent definitions
+│   │   ├── java-agent/
+│   │   ├── frontend-agent/
+│   │   ├── backend-agent/
+│   │   ├── qa-agent/
+│   │   └── code-reviewer/
+│   ├── rules/           # Common rule sets
+│   ├── hooks/           # Claude Code hooks
+│   └── commands/        # Command definitions
+├── src/
+│   └── install.ts       # Installation script
+└── docs/
+    └── 2026-05-09-multi-agent-spec-design.md
 ```
 
-### Rules
-- Use 2-space indentation
-- Do not use tabs
-- Key-value pairs separated by `:`
-- List items start with `-`
+## Agent Collaboration Pattern
 
-## File Organization
-
-### File Naming
-- Config files: `kebab-case.yaml`
-- Documentation files: `kebab-case.md`
-- Script files: `kebab-case.ts`
-
-### Directory Structure
 ```
-config/
-├── skills/          # One directory per Skill
-├── agents/          # One directory per Agent
-├── rules/           # Rule files
-├── hooks/           # Hook scripts
-└── commands/        # Command definitions
-
-src/
-└── *.ts            # TypeScript source files
+Master (CLI)
+    │
+    ├── project-explore ──→ Analyze project structure
+    │
+    ├── complexity-evaluate ──→ Evaluate complexity
+    │
+    ├── agent-claim ──→ Assign tasks to Sub-Agents
+    │
+    ├── task-execute ──→ Sub-Agents execute tasks
+    │       │
+    │       ├── java-agent
+    │       ├── frontend-agent
+    │       └── qa-agent
+    │
+    ├── qa-verify ──→ Verify quality
+    │
+    └── delivery-close ──→ Archive and deliver
 ```
 
-## Git Standards
+## File State Management
 
-### Commit Messages
+### State File Location
 ```
-type(scope): description
-
-feat(skills): add project-explore skill
-fix(agents): correct java-agent naming
-docs(rules): update coding standards
-```
-
-### Branch Naming
-```
-feature/<skill-name>
-fix/<issue-description>
-docs/<topic>
+.project-teams-spec/
+├── SPEC.md                 # Project specification
+├── COMPLEXITY.md           # Complexity report
+├── projects/
+│   └── <project>/
+│       ├── plan.md         # Execution plan
+│       ├── plan-revised.md # Revised plan
+│       └── tasks/          # Task files
+├── verification.md          # Verification report
+└── archive-manifest.md     # Archive manifest
 ```
 
-## Error Handling
+### State Transition
+```
+pre-planning → planning → executing → verifying → closed
+```
 
-### Exception Classification
-- **Critical**: Must be fixed, cannot continue otherwise
-- **High**: Recommended fix, may affect functionality
-- **Medium**: Fix as needed, does not affect main flow
-- **Low**: Minor issue, acceptable
+## Skill Types
 
-### Handling Process
-1. Identify error type
-2. Record error details
-3. Generate fix suggestions
-4. Notify relevant parties
+### internal
+- Master executes directly
+- No Sub-Agent participation required
+- Examples: project-explore, complexity-evaluate
 
-## Security Standards
+### agent-subprocess
+- Master delegates to Sub-Agent
+- Sub-Agent returns results after completion
+- Examples: task-execute, qa-verify
 
-### Prohibited
-- Do not hardcode secrets in code
-- Do not print sensitive information in logs
-- Do not expose system architecture in comments
+## Key Design Decisions
 
-### Requirements
-- All inputs must be validated
-- All outputs must be sanitized
-- All operations must be logged
+### Decision 1: Master = CLI Tool
+No independent Master process is implemented. Instead, it is injected into the CLI tool.
+
+### Decision 2: Sub-Agent Communication Relies on Tool Native Capabilities
+No RPC is implemented. Coordination is done through the tool's TUI, configuration, or SDK.
+
+### Decision 3: File State as Inter-Agent Communication Medium
+State is passed through YAML files in the `.project-teams-spec/` directory.
+
+### Decision 4: Hooks Only Support Claude Code (Phase 1)
+Hook mechanisms for other tools will be implemented after research in Phase 2.

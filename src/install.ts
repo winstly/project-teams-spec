@@ -583,7 +583,8 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
     console.log(chalk.dim('  Copying rules...'));
     const rulesSrc = path.join(PROJECT_ROOT, 'config', 'rules');
     const rulesDest = path.join(toolPath, 'rules');
-    const rulesDirs = await countDirectories(rulesSrc);
+    // Rules are .md files, not directories, so count files
+    const rulesStats = await countSourceItems(rulesSrc);
     const rulesResult = await copyDirectory(rulesSrc, rulesDest, { overwrite, toolId });
 
     if (rulesResult.errors.length > 0) {
@@ -593,7 +594,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
       }
     }
 
-    console.log(`  ✓ ${rulesDirs} rules copied`);
+    console.log(`  ✓ ${rulesStats.files} rules copied`);
 
     // Install commands using command generation
     console.log(chalk.dim('  Generating commands...'));
@@ -628,7 +629,8 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
         console.log(chalk.dim('  Installing hooks...'));
         const hooksSrc = path.join(PROJECT_ROOT, 'config', 'hooks');
         const hooksDest = path.join(toolPath, 'hooks');
-        const hooksDirs = await countDirectories(hooksSrc);
+        // Hooks are .sh files, not directories, so count files
+        const hooksStats = await countSourceItems(hooksSrc);
         const hooksResult = await copyDirectory(hooksSrc, hooksDest, { overwrite, toolId });
 
         if (hooksResult.errors.length > 0) {
@@ -639,7 +641,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
         }
 
         await updateSettingsJsonHooks(toolPath, true);
-        console.log(`  ✓ ${hooksDirs} hooks copied`);
+        console.log(`  ✓ ${hooksStats.files} hooks copied`);
       }
     }
 

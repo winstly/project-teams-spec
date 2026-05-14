@@ -20,7 +20,7 @@
                                   │
                                   ▼ 项目集级
 ┌─────────────────────────────────────────────────────────────────────┐
-│                       项目集级 ({{SPEC_DIR}}/)                       │
+│ 项目集级 (projects/ directory)                              │
 │  PROJECT_WHITEPAPER.md            ← 项目集白皮书                    │
 │  └── projects/{project}/          ← 各项目独立目录                   │
 │      ├── SPEC.md                 ← 项目级分析                       │
@@ -38,7 +38,11 @@
 |------|------|
 | 工程名称 | project-teams-spec |
 | 目标 | Multi-Agent Engineering Spec System - 多Agent团队协作框架 |
+<<<<<<< Updated upstream
 | 版本 | 1.2.0 |
+=======
+*版本 | 1.1.0 |
+>>>>>>> Stashed changes
 | 创建日期 | 2026-05-09 |
 | 技术栈 | TypeScript, Node.js, Claude Code |
 
@@ -127,7 +131,7 @@
 ### 归档结构
 
 ```
-{{SPEC_DIR}}/
+projects/                        # 项目集目录（运行时生成）
 └── projects/{project_name}/
     └── archive/
         └── {YYYY-MM-DD}_{execution-id}/
@@ -217,7 +221,7 @@ project-teams-spec/
 │   ├── PROJECT_WHITEPAPER.md       # 工程白皮书（模板）
 │   ├── SPEC.md                     # 项目分析模板
 │   ├── COMPLEXITY.md               # 复杂度评估模板
-│   ├── skills/                     # 12 标准 Skills
+│   ├── skills/                     # 9 标准 Skills
 │   ├── agents/                     # 5 Agent 定义
 │   │   ├── java-agent/
 │   │   ├── frontend-agent/
@@ -233,7 +237,7 @@ project-teams-spec/
 ### 项目集级目录结构
 
 ```
-{{SPEC_DIR}}/                        # 项目集目录（运行时生成）
+projects/                           # 项目集目录（运行时生成）
 ├── PROJECT_WHITEPAPER.md            # 项目集白皮书
 └── projects/                        # 各项目目录
     └── {project-name}/
@@ -274,5 +278,10 @@ project-teams-spec/
 
 ---
 
+<<<<<<< Updated upstream
 *最后更新: 2026-05-15*
 *文档版本: 1.2.0*
+=======
+*最后更新: 2026-05-12*
+*文档版本: 1.1.0*
+>>>>>>> Stashed changes

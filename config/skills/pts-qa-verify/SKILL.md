@@ -87,24 +87,30 @@ steps:
 
   - id: verify-quality
     description: Verify code quality
-    type: agent-subprocess
-    delegate_to: qa-agent
+    type: internal
     continue_on_error: false
     timeout: 10m
+    notes: |
+      delegate_to: qa-agent
+      Subprocess call to qa-agent for code quality verification.
 
   - id: run-tests
     description: Run test verification
-    type: agent-subprocess
-    delegate_to: qa-agent
+    type: internal
     continue_on_error: false
     timeout: 15m
+    notes: |
+      delegate_to: qa-agent
+      Subprocess call to qa-agent to run test verification.
 
   - id: check-coverage
     description: Check test coverage
-    type: agent-subprocess
-    delegate_to: qa-agent
+    type: internal
     continue_on_error: false
     timeout: 5m
+    notes: |
+      delegate_to: qa-agent
+      Subprocess call to qa-agent to check test coverage.
 
   - id: generate-report
     description: Generate verification report

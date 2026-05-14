@@ -118,11 +118,11 @@ steps:
 
   - id: dispatch-to-agents
     description: Dispatch tasks to corresponding Agents with rules context
-    type: agent-subprocess
-    delegate_to: auto
+    type: internal
     continue_on_error: true
     timeout: 30m
     notes: |
+      delegate_to: auto
       For each task, build prompt with:
       1. Agent config from {{AGENTS_DIR}}/{agent}/agent.md
       2. Task descriptor from {{SPEC_DIR}}/projects/{project}/tasks/{id}.md

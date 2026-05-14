@@ -162,11 +162,7 @@ project-teams-spec/
 │   ├── rules/                        # Rule files
 │   ├── hooks/                        # Claude Code Hook scripts
 │   └── commands/                     # Command templates
-├── bin/
-│   └── cli.js                        # CLI entry point
-└── openspec/
-    └── changes/                     # OpenSpec change management
-```
+└── bin/
 
 ## Supported Tools
 
@@ -371,8 +367,8 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
 ## Documentation
 
-- [CLAUDE.md](CLAUDE.md) - Project architecture details
-- [openspec/changes/](openspec/changes/) - OpenSpec change management
+- [PROJECT_WHITEPAPER.md](config/PROJECT_WHITEPAPER.md) - Project architecture details
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 
 ## License
 

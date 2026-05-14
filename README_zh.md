@@ -163,11 +163,7 @@ project-teams-spec/
 │   ├── rules/                        # 规则文件
 │   ├── hooks/                        # Claude Code Hook 脚本
 │   └── commands/                     # 命令模板
-├── bin/
-│   └── cli.js                        # CLI 入口
-└── openspec/
-    └── changes/                     # OpenSpec 变更管理
-```
+└── bin/
 
 ## 支持的工具
 
@@ -372,8 +368,8 @@ npm link
 
 ## 相关文档
 
-- [CLAUDE.md](CLAUDE.md) - 项目架构说明
-- [openspec/changes/](openspec/changes/) - OpenSpec 变更管理
+- [PROJECT_WHITEPAPER.md](config/PROJECT_WHITEPAPER.md) - 项目架构说明
+- [CONTRIBUTING.md](CONTRIBUTING.md) - 贡献指南
 
 ## 许可证
 
