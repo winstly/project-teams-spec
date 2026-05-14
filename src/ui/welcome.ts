@@ -21,14 +21,14 @@ ${CYAN}╔═══════════════════════�
 ╚═══════════════════════════════════════════════════════╝${RESET}
 
 ${BOLD}Multi-Agent Engineering Spec System${RESET}
-${DIM}Version 1.1.0 | Streamline your development workflow${RESET}
+${DIM}Version 1.2.0 | Streamline your development workflow${RESET}
 `;
 
 const FEATURES = [
-  { icon: '⚡', text: '12 Skills (9 Core + 3 Utility)', color: CYAN },
+  { icon: '⚡', text: '12 Skills (Sequential Phases 1-12)', color: CYAN },
   { icon: '🤖', text: '5 Specialized Agents', color: GREEN },
-  { icon: '📋', text: 'Milestone-Based Iterative Delivery', color: YELLOW },
-  { icon: '🪝', text: 'Claude Code Hook Integration', color: MAGENTA },
+  { icon: '📋', text: 'Three-Phase Workflow: Analyze → Plan → Execute', color: YELLOW },
+  { icon: '🔄', text: 'Iterative Learning from Project Experience', color: MAGENTA },
 ];
 
 function getWelcomeText(): string[] {
@@ -39,7 +39,7 @@ function getWelcomeText(): string[] {
     ...FEATURES.map(f => `  ${f.icon} ${f.color}${f.text}${RESET}`),
     '',
     `${BOLD}Quick start after setup:${RESET}`,
-    `  ${GREEN}→${RESET} Run ${BOLD}/pts:full-analysis${RESET} to analyze your project`,
+    `  ${GREEN}→${RESET} Run ${BOLD}/pts:analyze${RESET} to analyze your project`,
     '',
     `${DIM}Press ${BOLD}Enter${RESET}${DIM} or ${BOLD}Space${RESET}${DIM} to continue...${RESET}`,
   ];
