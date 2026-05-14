@@ -1,6 +1,6 @@
 {
     "name": "project-teams-spec",
-    "version": "1.1.0",
+    "version": "1.2.1",
     "description": "Multi-Agent Engineering Spec - Standardized engineering specification injection system for AI CLI tools",
     "type": "module",
     "main": "dist/install.js",

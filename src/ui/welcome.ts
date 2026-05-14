@@ -21,7 +21,7 @@ ${CYAN}╔═══════════════════════�
 ╚═══════════════════════════════════════════════════════╝${RESET}
 
 ${BOLD}Multi-Agent Engineering Spec System${RESET}
-${DIM}Version 1.2.0 | Streamline your development workflow${RESET}
+${DIM}Version 1.2.1 | Streamline your development workflow${RESET}
 `;
 
 const FEATURES = [

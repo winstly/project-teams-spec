@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-05-15
+
+### Fixed
+- **Install display counts directories instead of files**
+  - Changed from "27 skill files copied" to "12 skills copied"
+  - Now shows directory count for skills, agents, rules, hooks
+
+### Changed
+- **Version bump**: 1.2.0 → 1.2.1
+
 ### Added
 - **Three-Phase Workflow Commands**
   - `analyze-cycle` (`/pts:analyze`): project-explore → complexity-evaluate → requirement-clarify

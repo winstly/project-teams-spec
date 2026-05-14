@@ -305,6 +305,29 @@ async function rollback(backups: BackupEntry[]): Promise<void> {
   console.log(chalk.green(`  Rolled back ${backups.length} files`));
 }
 
+// Count top-level directories in source
+async function countDirectories(src: string): Promise<number> {
+  try {
+    const entries = await fs.readdir(src, { withFileTypes: true });
+    return entries.filter(e => e.isDirectory()).length;
+  } catch {
+    return 0;
+  }
+}
+
+// Count top-level items with stats
+async function countSourceItems(src: string): Promise<{ dirs: number; files: number }> {
+  try {
+    const entries = await fs.readdir(src, { withFileTypes: true });
+    return {
+      dirs: entries.filter(e => e.isDirectory()).length,
+      files: entries.filter(e => e.isFile()).length
+    };
+  } catch {
+    return { dirs: 0, files: 0 };
+  }
+}
+
 // Copy directory with progress callback
 async function copyDirectory(
   src: string,
@@ -528,6 +551,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
     console.log(chalk.dim('  Copying skills...'));
     const skillsSrc = path.join(PROJECT_ROOT, 'config', 'skills');
     const skillsDest = path.join(toolPath, 'skills');
+    const skillsDirs = await countDirectories(skillsSrc);
     const skillsResult = await copyDirectory(skillsSrc, skillsDest, { overwrite, toolId });
 
     if (skillsResult.errors.length > 0) {
@@ -537,12 +561,13 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
       }
     }
 
-    console.log(`  ✓ ${skillsResult.copied.length} skill files copied`);
+    console.log(`  ✓ ${skillsDirs} skills copied`);
 
     // Install agents
     console.log(chalk.dim('  Copying agents...'));
     const agentsSrc = path.join(PROJECT_ROOT, 'config', 'agents');
     const agentsDest = path.join(toolPath, 'agents');
+    const agentsDirs = await countDirectories(agentsSrc);
     const agentsResult = await copyDirectory(agentsSrc, agentsDest, { overwrite });
 
     if (agentsResult.errors.length > 0) {
@@ -552,12 +577,13 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
       }
     }
 
-    console.log(`  ✓ ${agentsResult.copied.length} agent files copied`);
+    console.log(`  ✓ ${agentsDirs} agents copied`);
 
     // Install rules
     console.log(chalk.dim('  Copying rules...'));
     const rulesSrc = path.join(PROJECT_ROOT, 'config', 'rules');
     const rulesDest = path.join(toolPath, 'rules');
+    const rulesDirs = await countDirectories(rulesSrc);
     const rulesResult = await copyDirectory(rulesSrc, rulesDest, { overwrite, toolId });
 
     if (rulesResult.errors.length > 0) {
@@ -567,7 +593,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
       }
     }
 
-    console.log(`  ✓ ${rulesResult.copied.length} rule files copied`);
+    console.log(`  ✓ ${rulesDirs} rules copied`);
 
     // Install commands using command generation
     console.log(chalk.dim('  Generating commands...'));
@@ -602,6 +628,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
         console.log(chalk.dim('  Installing hooks...'));
         const hooksSrc = path.join(PROJECT_ROOT, 'config', 'hooks');
         const hooksDest = path.join(toolPath, 'hooks');
+        const hooksDirs = await countDirectories(hooksSrc);
         const hooksResult = await copyDirectory(hooksSrc, hooksDest, { overwrite, toolId });
 
         if (hooksResult.errors.length > 0) {
@@ -612,7 +639,7 @@ async function installToTool(toolId: string, options: InstallOptions): Promise<b
         }
 
         await updateSettingsJsonHooks(toolPath, true);
-        console.log(`  ✓ ${hooksResult.copied.length} hook files copied`);
+        console.log(`  ✓ ${hooksDirs} hooks copied`);
       }
     }
 
